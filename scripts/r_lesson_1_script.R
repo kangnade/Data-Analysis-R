@@ -33,7 +33,11 @@ xtabs(~group, data_bl)
 # To make a figure
 # making a boxplot of reaction times separated by our two groups
 ### FIGURES BY GROUP
-dt.plot <- ggplot(dt, aes(x = group, y = rt)) + geom_boxplot()
+dt.plot <- ggplot(dt, aes(x = group, y = rt)) + geom_boxplot(aes(fill = group)) +
+  ggtitle("Reaction Times by Group") +
+  xlab("Group") + ylab("Reaction time in ms") +
+  theme_classic() + theme(text = element_text(size = 18), title = element_text(size=18),
+                          legend.position = "none")
 dt.plot
 # After that, we want to save the figures into the folder
 # We first use the pdf() function and specify the root folder
@@ -41,4 +45,17 @@ dt.plot
 pdf("figures/dt_boxplot.pdf")
 dt.plot # execute once more the plot
 dev.off() # device off to close the graphics device pdf() function
+
+### WITHIN BILINGUAL GROUP
+### MAKE A PLOT OF FIGURE
+dt.plot2 <- ggplot(dt, aes(x = type, y = rt)) + geom_boxplot(aes(fill=type)) +
+  ggtitle("Reaction Time by L2 Proficiency Level") + xlab("Proficiency in L2") +
+  ylab("Reaction time in ms") + theme_classic() +
+  theme(text = element_text(size=18), title = element_text(size=18), legend.position = "none")
+dt.plot2
+# SAVE TO PDF
+pdf("figures/lesson1_second_boxplot.pdf")
+dt.plot2
+dev.off()
+
 

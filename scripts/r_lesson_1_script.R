@@ -69,3 +69,35 @@ dt.plot3
 dev.off()
 
 ### DONE
+
+
+## RUN DESCRIPTIVE STATISTICS ####
+# Summarise data
+data_sum <- dt %>%
+  # Say what you want to summarise by, here it's 'group'
+  group_by(group) %>%
+  # Get mean, standard deviation, maximum, and minimum reaction times for each group
+  summarise(rt_mean = mean(rt),
+            rt_sd = sd(rt),
+            rt_max = max(rt),
+            rt_min = min(rt)) %>%
+  # Ungroup the data so future analyses can be done on the data frame as a whole,
+  # not by group
+  ungroup()
+
+data_sum
+
+# Summarise data for bilinguals
+data_bl_sum <- data_bl %>%
+  # Say what you want to summarise by, here it's type
+  group_by(type) %>%
+  # Get mean, standard deviation, maximum, and minimum reaction times for each type
+  summarise(rt_mean = mean(rt),
+            rt_sd = sd(rt),
+            rt_max = max(rt),
+            rt_min = min(rt)) %>%
+  # Ungroup the data so future analyses can be done on the data frame as a whole,
+  # not by type
+  ungroup()
+
+data_bl_sum

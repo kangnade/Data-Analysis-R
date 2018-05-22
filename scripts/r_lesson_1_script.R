@@ -48,7 +48,7 @@ dev.off() # device off to close the graphics device pdf() function
 
 ### WITHIN BILINGUAL GROUP
 ### MAKE A PLOT OF FIGURE
-dt.plot2 <- ggplot(dt, aes(x = type, y = rt)) + geom_boxplot(aes(fill=type)) +
+dt.plot2 <- ggplot(data_bl, aes(x = type, y = rt)) + geom_boxplot(aes(fill=type)) +
   ggtitle("Reaction Time by L2 Proficiency Level") + xlab("Proficiency in L2") +
   ylab("Reaction time in ms") + theme_classic() +
   theme(text = element_text(size=18), title = element_text(size=18), legend.position = "none")
@@ -58,4 +58,14 @@ pdf("figures/lesson1_second_boxplot.pdf")
 dt.plot2
 dev.off()
 
+### bilinguals with monolinguals Plot
+dt.plot3 <- ggplot(dt, aes(x = group, y = rt)) + geom_boxplot(aes(fill = type)) +
+  ggtitle("Reaction Time by L2 Proficiency Level") + xlab("Proficiency in L2") +
+  ylab("Reaction times in ms") + theme_classic() + 
+  theme(text = element_text(size=18), title = element_text(size=18), legend.position = "none")
+dt.plot3
+pdf("figures/lesson1_third_boxplot.pdf")
+dt.plot3
+dev.off()
 
+### DONE

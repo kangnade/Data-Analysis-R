@@ -1,0 +1,37 @@
+---
+title: "rcourse_lesson2_writeup"
+author: "Nade Kang"
+date: "June 6, 2018"
+output: html_document
+---
+
+```{r, echo=FALSE}
+load("rcourse_lesson2_environment.RData")
+```
+
+<pre><code class="r"># Introduction
+
+I looked at how common my name, "Nicole", is in the United States population both by year and gender.
+
+<pre><code class="r"># Results
+
+<pre><code class="r"># Prevalence by Year
+Below is a plot for how the proportion of people with the name "Nicole" (log base 10 transformed) has changed over time. Overall the trend varies by the year, with a sudden increase after 1960s and gradually slowed down
+```{r,fig.align='center'}
+popularity.plot
+```
+To test if there is a significant effect of year a linear model was built. Proportion of the population log base 10 transformed was the dependent variable and year the independent variable. As shown below, year was statistically significant, and the coefficients do show a positive slope, though quite tiny.
+```{r,fig.align='center'}
+summary(year.lm)
+```
+<pre><code class="r"># Prevalence by Gender
+Below is a plot for the proportion of people with the name "Nicole" (log base 10 transformed) by gender. It appears there is a clear effect of gender, where it is a less popular name for males than females.
+```{r,fig.align='center'}
+gender.plot
+```
+To test if there is a significant effect of sex a linear model was built. Proportion of the population log base 10 transformed was the dependent variable and sex the independent variable. As show below, sex was significant, with the name being less common in males than females [R^2^ = 0.442, F(1, 101) = 80.02, p < 0.001].
+```{r,fig.align='center'}
+summary(genderlm)
+```
+<pre><code class="r"># Conclusion
+"Nicole" increased suddenly in 1960s and it is more popular for female than male

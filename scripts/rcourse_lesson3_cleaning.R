@@ -23,12 +23,12 @@ data_posey <- read.table("data/rcourse_lesson3_data_posey.txt", header = T, sep 
 
 ### Add column to full season data to make data set specific to the Giants
 data_clean <- data %>% 
-  mutate(home_visitor <- ifelse(home_team == "SFN", "home","visitor")) %>%
+  mutate(home_visitor = ifelse(home_team == "SFN", "home","visitor")) %>%
   # Since we asked whether time was before or after All-Star break
   # we need to make a column whether a game was before or after All-Star break
   # the date of All-Star was July 13, 2010, data has YYYYMMDD format
   # We use another mutate() and ifelse() methods
-  mutate(allstar_break <- ifelse(date < 20100713, "before", "after")) %>%
+  mutate(allstar_break = ifelse(date < 20100713, "before", "after")) %>%
   # The last column we make is for the dependent variable for our logistic regression
   # A series of ifelse() statements to determine:
   # 1. The Giants were home team or not
@@ -36,19 +36,19 @@ data_clean <- data %>%
   # If the first is true, Giants home and scored more, we use 1
   # If the Giants were away, and home team scored fewer, we use also 1
   # Any other situation will be given 0
-  mutate(win <- ifelse(home_team=="SFN" & home_score > visitor_score, 1, 
+  mutate(win = ifelse(home_team=="SFN" & home_score > visitor_score, 1, 
                        ifelse(visitor_team=="SFN" & home_score < visitor_score, 1, 0))) %>%
   # Make columns for Giants stats
-  mutate(giants_hits <- ifelse(home_team=="SFN", home_hits, visitor_hits)) %>%
-  mutate(giants_pitchers_used <- ifelse(home_team=="SFN", home_pitchers_used, visitor_pitchers_used)) %>%
-  mutate(giants_errors <- ifelse(home_team=="SFN", home_errors, visitor_errors)) %>%
+  mutate(giants_hits = ifelse(home_team=="SFN", home_hits, visitor_hits)) %>%
+  mutate(giants_pitchers_used = ifelse(home_team=="SFN", home_pitchers_used, visitor_pitchers_used)) %>%
+  mutate(giants_errors = ifelse(home_team=="SFN", home_errors, visitor_errors)) %>%
   # Make columns for other team stats
-  mutate(other_hits <- ifelse(home_team != "SFN", home_hits, visitor_hits)) %>%
-  mutate(other_pitchers_used <- ifelse(home_team != "SFN", home_pitchers_used, visitor_pitchers_used)) %>%
-  mutate(other_errors <- ifelse(home_team != "SFN", home_errors, visitor_errors)) %>%
+  mutate(other_hits = ifelse(home_team != "SFN", home_hits, visitor_hits)) %>%
+  mutate(other_pitchers_used = ifelse(home_team != "SFN", home_pitchers_used, visitor_pitchers_used)) %>%
+  mutate(other_errors = ifelse(home_team != "SFN", home_errors, visitor_errors)) %>%
   # Make a column for game number
   arrange(date) %>%
-  mutate(game_number <- row_number())
+  mutate(game_number = row_number())
 
 
 ### Combine cleaned full-season data with Posey's
@@ -56,7 +56,7 @@ data_posey_clean <- data_posey %>%
   # Join with full season data
   inner_join(data_clean) %>%
   # Make a column for if walked or not
-  mutate(walked <- ifelse(walks > 0, "yes", "no"))
+  mutate(walked = ifelse(walks > 0, "yes", "no"))
 
 # Check data
 dim(data_posey)

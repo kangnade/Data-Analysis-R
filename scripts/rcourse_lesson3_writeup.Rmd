@@ -1,0 +1,43 @@
+---
+title: "rcourse_lesson3_writeup"
+author: "Nade Kang"
+date: "June 9, 2018"
+output: html_document
+---
+
+```{r, echo=FALSE}
+load("rcourse_lesson3_environment.RData")
+```
+
+# Introduction
+
+I analyzed the Giants' 2010 World Series winning season to see what could significantly predict games they won. I looked at both full season data (all 162 games) and games specific to when Buster Posey was playing.
+
+# Results
+
+## Full Season Data
+
+For the full season data I tested for an effect of whether the Giants had more wins after the All-Star break or before the All-Star break. Initial visual examination of the data suggests that numerically they won a higher percentage of games after the All-Star break, but the effect looks very small.
+
+```{r, echo=FALSE, fig.align='center'}
+allstar.plot
+```
+
+To test this effect I ran a logistic regression with win or loss as the dependent variable and before or after the All-Star break as the independent variable. There was no significant effect of the All-Star break.
+
+```{r}
+allstar.glm_sum
+```
+
+## Buster Posey Data
+
+We also examined Posey's data in similar way.
+
+```{r, echo=FALSE, fig.align='center'}
+posey_walked.plot
+```
+
+Here the estimated intercept is -0.09531, "no" is the default value, so if Posey was NOT walked, the Giants were below 50% for winning, although p-value tells this is not statistically significant the walked variable however, shows 2.49 quite positive with significant p-value, suggesting that if Posey walked, Giants were more likely to win.
+```{r, echo=FALSE, fig.align='center'}
+posey_walked.glm_sum
+```

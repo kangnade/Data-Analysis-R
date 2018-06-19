@@ -84,7 +84,67 @@ png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_co
 hwy_displ_plot
 dev.off()
 
-# In addition to color, 
+# In addition to color, we can amp class to the size
+# I addded color to the size
+displ_hwy_map_size <- ggplot(data = mpg, aes(color = class)) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+displ_hwy_map_size
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_size_plot.pdf")
+displ_hwy_map_size
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_size_plot.png")
+displ_hwy_map_size
+dev.off()
+
+# We can also map class to alpha aesthetics, which controls the transparency
+# of the points or the shape of the points
+displ_hwy_map_alpha <- ggplot(data = mpg, aes(color = class)) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+displ_hwy_map_alpha
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_alpha_plot.pdf")
+displ_hwy_map_alpha
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_alpha_plot.png")
+displ_hwy_map_alpha
+dev.off()
+
+# We can also map to shapes:
+displ_hwy_map_shape <- ggplot(data = mpg, aes(color = class)) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+displ_hwy_map_shape
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_shape_plot.pdf")
+displ_hwy_map_shape
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_shape_plot.png")
+displ_hwy_map_shape
+dev.off()
+
+# Exercises:
+# 1. What's gone wrong with this code, why are the points not blue?
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+# Answer: to manually set the color, the color = "blue" needs to be placed outside
+# the mapping() method, in other words, you set the aesthetics by name as an
+# argument of the geom_point() function, such as:
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+
+# 2. 
 
 ### Position Adjustment
 # Plotting position = identity, need to ajudst the alpha transparency

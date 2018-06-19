@@ -11,15 +11,20 @@ library(tidyverse)
 # I made some adjustments to the original code in the book "R for Data Science"
 # written by Dr. Hadley Wickham
 # This is the first plot in the book
+# Use theme(plot.title = element_text(hjust = 0.5)) to center the title
+# Use expression(atop("","")) to separate the long title
 first <- ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy)) +
-  ggtitle("Relationship between engine size and fuel efficiency") +
+  ggtitle(expression(atop("Relationship between engine size","and fuel efficiency"))) +
   xlab("Engine Size") +
   ylab("Fuel Efficiency") +
   theme_classic() +
-  theme(title = element_text(size = 18), text = element_text(size = 14))
+  theme(title = element_text(size = 18), text = element_text(size = 14),
+        plot.title = element_text(hjust = 0.5))
 first
-pdf("figures/r_for_data_science_wickham_textbook_first_displ_hwy_plot")
+png("r_wickham/figures/r_for_data_science_wickham_textbook_first_displ_hwy_plot.png")
+first
+pdf("r_wickham/figures/r_for_data_science_wickham_textbook_first_displ_hwy_plot.pdf")
 first
 dev.off()
 
@@ -42,14 +47,19 @@ dim(mtcars)
 View(mpg)
 hwy_cyl_Q4 <- ggplot(data = mpg, mapping = aes(x = cyl, y = hwy)) +
   geom_point(mapping = aes(color = year)) +
-  ggtitle("Highway miles per gallon against City miles per gallon Plot") +
+  ggtitle(expression(atop("Highway miles per gallon against","City miles per gallon Plot"))) +
   xlab("City Miles Per Gallon") +
   ylab("Highway Miles Per Gallon") +
-  theme(title = element_text(size = 18), text = element_text(size = 14))
-hwy_cyl_Q4
-pdf("figures/r_for_data_science_wickham_exercise_hwy_cyl_plot")
+  theme(title = element_text(size = 16), text = element_text(size = 14),
+        legend.position = "top", plot.title = element_text(hjust = 0.5))
+
+pdf("r_wickham/figures/r_for_data_science_wickham_exercise_hwy_cyl_plot.pdf")
 hwy_cyl_Q4
 dev.off()
+png("r_wickham/figures/r_for_data_science_wickham_exercise_hwy_cyl_plot.png")
+hwy_cyl_Q4
+dev.off()
+hwy_cyl_Q4
 
 # 5. What happens if you make a scatterplot of class versus drv? Why is the plot not useful
 class_drv_Q5 <- ggplot(data = mpg, mapping = aes(x = class, y = drv)) +
@@ -62,16 +72,19 @@ class_drv_Q5
 # Book's plot of displ(engine displacement in litres) against hwy(highway m/p gallon)
 hwy_displ_plot <- ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, color = class)) +
-  ggtitle("Engine Displacement and Highway Miles Per Gallon") +
+  ggtitle(expression(atop("Engine Displacement", "and Highway Miles Per Gallon"))) +
   xlab("Engine Displacement in Litres") +
   ylab("Highway Miles Per Gallon") +
   theme_gray() +
-  theme(title = element_text(size = 18), text = element_text(size = 10))
+  theme(title = element_text(size = 16), text = element_text(size = 10),
+        legend.position = "top", plot.title = element_text(hjust = 0.5))
+pdf("r_wickham/figures/r_for_data_science_wickham_textbook_displ_hwy_color_plot.pdf")
 hwy_displ_plot
-pdf("figures/r_for_data_science_wickham_textbook_displ_hwy_color_plot")
+png("r_wickham/figures/r_for_data_science_wickham_textbook_displ_hwy_color_plot.png")
 hwy_displ_plot
 dev.off()
 
+# In addition to color, 
 
 ### Position Adjustment
 # Plotting position = identity, need to ajudst the alpha transparency

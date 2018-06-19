@@ -144,7 +144,87 @@ ggplot(data = mpg) +
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
 
-# 2. 
+# 2. Which variables in mpg are categorical? Which are continuous?
+# How can you see this information when you run mpg?
+?mpg
+View(mpg)
+# manufacturer, trans, drv, fl, and class are categorical while the rest
+# are continuous. You can use View() method to check it.
+
+# 3. Map a continuous variable to color, size and shape. How do these
+# aesthetics behave differently for categorical versus continuous variables?
+cate_vs_conti_1 <- ggplot(data = mpg, aes(color = hwy)) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = hwy)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+cate_vs_conti_1
+
+cate_vs_conti_2 <- ggplot(data = mpg, aes(color = hwy)) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = hwy)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+cate_vs_conti_2
+
+cate_vs_conti_3 <- ggplot(data = mpg, aes(color = hwy)) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = hwy)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+cate_vs_conti_3
+
+# Answer: all of the above 3 codes do not work, you get the information:
+# Error: A continuous variable can not be mapped to shape
+# This is because a continuous variable can be anything, thus it varies
+# so much that these mapped shape, size, and color cannot generate enough
+# variation to represent these variation in a continuous variable
+
+# 4. What happens if you map the same variable to muliple aesthetics?
+multi_mapping_Q4 <- ggplot(data = mpg, aes(color = class, alpha = class)) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class)) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon"))) +
+  xlab("Engine displacement in litres") +
+  ylab("Highway miles per gallon") +
+  theme_classic() +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 18),
+        text = element_text(size = 14))
+multi_mapping_Q4
+
+# You can map to multiple aesthetics, you get a combination of these aesthetics
+# for instance in the class(categorical) variable as you can see here by running the
+# code above.
+
+# 5. What does the stroke aesthetic do? What shapes does it work with?
+# (Hint: use ?geom_point)
+?geom_point
+multi_mapping_Q5 <- ggplot(data = mpg, aes(color = class)) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class, stroke = 3.5))
+multi_mapping_Q5
+# Answer: For shapes that have a border (like 21), you can colour the inside and
+# outside separately. Use the stroke aesthetic to modify the width of the
+# border
+
+# 6. What happens if you map an aesthetic to somethiing other than a variable name
+# like ae(color = displ < 5) ?
+logic_mapping_Q5 <- ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = displ < 5))
+logic_mapping_Q5
+# It shows you two colors, one is True, one is False, and separate the dots
+# that has a value of greater than 5 than those with values less than 5
+# Run the code above and check the graph.
+
+### FACETS ###
+
 
 ### Position Adjustment
 # Plotting position = identity, need to ajudst the alpha transparency

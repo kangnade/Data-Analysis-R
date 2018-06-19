@@ -1,0 +1,138 @@
+# install.packages("tidyverse")
+setwd("C:/Users/nade/Desktop/Data Analysis R")
+
+### LOAD PACKAGE ###
+library(tidyverse)
+
+# Chapter 1 Data Visualization with ggplot2
+
+# ###First Steps###
+
+# I made some adjustments to the original code in the book "R for Data Science"
+# written by Dr. Hadley Wickham
+# This is the first plot in the book
+first <- ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  ggtitle("Relationship between engine size and fuel efficiency") +
+  xlab("Engine Size") +
+  ylab("Fuel Efficiency") +
+  theme_classic() +
+  theme(title = element_text(size = 18), text = element_text(size = 14))
+first
+pdf("figures/r_for_data_science_wickham_textbook_first_displ_hwy_plot")
+first
+dev.off()
+
+# A Graphing Template
+# Exercises:
+# 1. Run ggplot(data = mpg). What do you see?
+testq1 <- ggplot(data = mpg)
+testq1
+# Answer: we see noting except grey background
+
+# 2. How many rows are in mtcars? How many columns?
+dim(mtcars)
+# Answer: Using dim() function we get 32 rows and 11 columns in mtcars
+
+# 3. What does the drv variable describe? Read the help for ?mpg to find out.
+?mpg
+# Answer:f = front-wheel drive, r = rear wheel drive, 4 = 4wd
+
+# 4. Make a scatter plot of hwy(high way miles per gallon) versus cyl(city miles per gallon)
+View(mpg)
+hwy_cyl_Q4 <- ggplot(data = mpg, mapping = aes(x = cyl, y = hwy)) +
+  geom_point(mapping = aes(color = year)) +
+  ggtitle("Highway miles per gallon against City miles per gallon Plot") +
+  xlab("City Miles Per Gallon") +
+  ylab("Highway Miles Per Gallon") +
+  theme(title = element_text(size = 18), text = element_text(size = 14))
+hwy_cyl_Q4
+pdf("figures/r_for_data_science_wickham_exercise_hwy_cyl_plot")
+hwy_cyl_Q4
+dev.off()
+
+# 5. What happens if you make a scatterplot of class versus drv? Why is the plot not useful
+class_drv_Q5 <- ggplot(data = mpg, mapping = aes(x = class, y = drv)) +
+  geom_point()
+class_drv_Q5
+# It doesn't help because these two are both categorical data
+
+# ###Aesthetic Mappings###
+
+# Book's plot of displ(engine displacement in litres) against hwy(highway m/p gallon)
+hwy_displ_plot <- ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class)) +
+  ggtitle("Engine Displacement and Highway Miles Per Gallon") +
+  xlab("Engine Displacement in Litres") +
+  ylab("Highway Miles Per Gallon") +
+  theme_gray() +
+  theme(title = element_text(size = 18), text = element_text(size = 10))
+hwy_displ_plot
+pdf("figures/r_for_data_science_wickham_textbook_displ_hwy_color_plot")
+hwy_displ_plot
+dev.off()
+
+
+### Position Adjustment
+# Plotting position = identity, need to ajudst the alpha transparency
+position_identity_1 <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(alpha = 1/5, position = "identity")
+position_identity_1
+
+# Another position = identity
+position_identity_2 <- ggplot(data = diamonds, mapping = aes(x = cut, color = clarity)) +
+  geom_bar(fill = NA, position = "identity")
+position_identity_2
+
+# position = "fill" set stacked bars with the same height
+position_fill <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(position = "fill")
+position_fill
+
+# position = "dodge" places overlapping items directly next to each other
+position_dodge <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
+  geom_bar(position = "dodge")
+position_dodge
+
+# To avoid overplotting, use potition = "jitter", it places random noise to each point
+position_jitter <- ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy),position = "jitter")
+position_jitter
+
+### Coordinate Systems
+# Default is cartesian coordinate, where x and y position act independently
+# to find location of each point
+# coord_flip() switches x and y axes. It is useful if you want horizontal boxplots
+# It's also useful for long labels
+coord_sys <- ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot()
+coord_sys
+
+coord_sys2 <- ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot() +
+  coord_flip()
+coord_sys2
+
+# coord_quickmap() sets the aspect ratio for maps
+
+nz <- map_data("nz")
+nz1 <- ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "black")
+nz1
+
+nz2 <- ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "black") +
+  coord_quickmap()
+nz2
+
+# coord_polar() uses polar coordinates
+bar <- ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut), show.legend = FALSE, width = 1) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+bar
+
+bar + coord_flip()
+  
+bar + coord_polar()
+

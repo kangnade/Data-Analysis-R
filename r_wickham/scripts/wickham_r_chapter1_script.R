@@ -22,9 +22,9 @@ first <- ggplot(data = mpg) +
   theme(title = element_text(size = 18), text = element_text(size = 14),
         plot.title = element_text(hjust = 0.5))
 first
-png("r_wickham/figures/r_for_data_science_wickham_textbook_first_displ_hwy_plot.png")
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_first_displ_hwy_plot.png")
 first
-pdf("r_wickham/figures/r_for_data_science_wickham_textbook_first_displ_hwy_plot.pdf")
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_first_displ_hwy_plot.pdf")
 first
 dev.off()
 
@@ -53,10 +53,10 @@ hwy_cyl_Q4 <- ggplot(data = mpg, mapping = aes(x = cyl, y = hwy)) +
   theme(title = element_text(size = 16), text = element_text(size = 14),
         legend.position = "top", plot.title = element_text(hjust = 0.5))
 
-pdf("r_wickham/figures/r_for_data_science_wickham_exercise_hwy_cyl_plot.pdf")
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_exercise_hwy_cyl_plot.pdf")
 hwy_cyl_Q4
 dev.off()
-png("r_wickham/figures/r_for_data_science_wickham_exercise_hwy_cyl_plot.png")
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_exercise_hwy_cyl_plot.png")
 hwy_cyl_Q4
 dev.off()
 hwy_cyl_Q4
@@ -78,9 +78,9 @@ hwy_displ_plot <- ggplot(data = mpg) +
   theme_gray() +
   theme(title = element_text(size = 16), text = element_text(size = 10),
         legend.position = "top", plot.title = element_text(hjust = 0.5))
-pdf("r_wickham/figures/r_for_data_science_wickham_textbook_displ_hwy_color_plot.pdf")
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_plot.pdf")
 hwy_displ_plot
-png("r_wickham/figures/r_for_data_science_wickham_textbook_displ_hwy_color_plot.png")
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_color_plot.png")
 hwy_displ_plot
 dev.off()
 

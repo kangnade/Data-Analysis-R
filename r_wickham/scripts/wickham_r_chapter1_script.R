@@ -243,7 +243,218 @@ facet_wrap_plot
 png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_facet_wrap_plot.png")
 facet_wrap_plot
 dev.off()
-### Position Adjustment
+
+# To facet plot on combination of two variables, we use facet_grid()
+facet_grid_plot <- ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl) +
+  ggtitle(expression(atop("Facet Grid Plot", "of Displacement and", 
+                          "Highway Miles Per Gallon", "in terms of cylinders",
+                          "and wheel types"))) +
+  xlab("Engine Displacement in Litres") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 16),
+        text = element_text(size = 10))
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_facet_grid_plot.pdf")
+facet_grid_plot
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_facet_grid_plot.png")
+facet_grid_plot
+dev.off()
+
+# Facets Exercises:
+# 1. What ahppens if you facet on a continuous variable?
+facet_cont_plot <- ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ cty)
+facet_cont_plot
+# I cannot access to the plot, or maybe there are too many that it fails to plot
+
+# 2. What do empty cells in a plot with facet_grid(drv ~ cyl) mean? How do they
+# relate to this plot?
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x =drv, y = cyl))
+View(mpg)
+# There is simply no matchinig type of drv = 4 and cyl = 7 and so on
+
+# 3. What plots does the following code make? What does . do?
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)
+# This facet grid puts the data frame into rows of drv: 4, f, r and no columns
+# . means no variable to shape the data frame with columns
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)
+# This is exactly the opposite with columns of cyl instead of rows with drv
+
+# 4. Take the first faceted plot in this section
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2)
+# What are the advantages to using faceting instead of color aesthetics?
+# Disadvantage? Balance?
+# It helps you to check for each types, better for large data when color
+# doesn't work. But it doesn't show you to overall trend of each type that
+# can be checked when everything is put together
+
+# 5. Read ?facet_wrap. What does nrow do? What does ncol do? What other position
+# options control the layout of the individual panels? Why doesn't facet_grid()
+# have nrow and ncol variables?
+?facet_wrap
+?facet_grid
+# nrow and ncol defines the number of rows and columns
+# Other options include scales, shrink, dir, strip.position and so on
+# facet_grid() doesn't have nrow and ncol because there are two variables
+# involved and you cannot define the rows and columns in this situation
+
+# 6. When using facet_grid(), you should usually put the variable wit more unique
+# levels in the columns, why?
+# NOT SURE
+?mpg
+### GEOMETRIC OBJECTS ###
+geom_plot <- ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv)) +
+  ggtitle(expression(atop("Displacement in litres", "with Highway Miles Per Gallon",
+                          "by wheel type"))) +
+  xlab("Engine Displacement in Litres") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 16),
+        text = element_text(size =  10))
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_geomobj_plot.pdf")
+geom_plot
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_geomobj_plot.png")
+geom_plot
+dev.off()
+
+point_smooth_class <- ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth() +
+  ggtitle(expression(atop("Displacement in litres", "with Highway Miles Per Gallon",
+                          "by wheel type"))) +
+  xlab("Engine Displacement in Litres") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 16),
+        text = element_text(size =  10))
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_geomobj_color_plot.pdf")
+point_smooth_class
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_geomobj_color_plot.png")
+point_smooth_class
+dev.off()  
+
+# We can also use the same idea to specify different data for each layer
+# Here smooth line displace a subset of mpg data
+smooth_subset <- ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE) +
+  ggtitle(expression(atop("Displacement in litres", "with Highway Miles Per Gallon",
+                          "with subcompact class"))) +
+  xlab("Engine Displacement in Litres") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 16),
+        text = element_text(size =  10))
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_geomobj_subset_plot.pdf")
+smooth_subset
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_geomobj_subset_plot.png")
+smooth_subset
+dev.off()
+
+# Geometric Objects Exercises
+
+# 1. What geom would you use to draw a line chart?
+# geom_line()
+
+# 2. Run the code in your head and predict what the out put will look like.
+# Then run the code and check your predictions.
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+
+# 3. What does show.legend do?
+?geom_smooth
+# logical. Should this layer be included in the legends? 
+# NA, the default, includes if any aesthetics are mapped. 
+# FALSE never includes, and TRUE always includes.
+
+# 4. What does the se argument do?
+?geom_smooth
+# display confidence interval around smooth? 
+# (TRUE by default, see level to control
+
+# 5. Will these two graphs look different? Why or why not?
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth()
+
+ggplot() +
+  geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
+# They look the same, except there is duplication in the latter one
+
+# 6. Re-create the following grpahs
+# 1
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+
+# 2
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_smooth(mapping = aes(group = drv), se = FALSE)
+
+# 3
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(mapping = aes(group = drv), se = FALSE)
+
+# 4.
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = drv)) +
+  geom_smooth(se = FALSE)
+
+# 5
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
+  geom_point() +
+  geom_smooth(mapping = aes(linetype = drv), se = FALSE)
+
+# 6
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
+  geom_point()
+
+### STATISTICAL TRANSFORMATION ###
+
+# 1. What is the default geom associated with stat_summary()
+?stat_summary
+# geom_errorbar, geom_pointrange, geom_linerange, geom_crossbar 
+# for geoms to display summarised data
+
+# 2. What does geom_col() do? Difference between geom_bar()?
+# There are two types of bar charts: geom_bar makes the height 
+# of the bar proportional to the number of cases in each group 
+# (or if the weight aethetic is supplied, the sum of the weights). 
+# If you want the heights of the bars to represent values in the data, 
+# use geom_col instead.
+?geom_col
+
+# 3. What does stat_smooth() compute? What parameters control its behavior?
+?stat_smooth
+# y
+# predicted value
+# ymin
+# lower pointwise confidence interval around the mean
+# ymax
+# upper pointwise confidence interval around the mean
+# se
+# standard error
+
+# 4. What are the problems in these two plots
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, y = ..prop..))
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = color, y = ..prop..))
+# These two plots show no difference in the prop among different quality level
+
+### Position Adjustment ###
 # Plotting position = identity, need to ajudst the alpha transparency
 position_identity_1 <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +
   geom_bar(alpha = 1/5, position = "identity")
@@ -268,6 +479,9 @@ position_dodge
 position_jitter <- ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy),position = "jitter")
 position_jitter
+
+# Position Adjustments Exercises
+# 1.
 
 ### Coordinate Systems
 # Default is cartesian coordinate, where x and y position act independently

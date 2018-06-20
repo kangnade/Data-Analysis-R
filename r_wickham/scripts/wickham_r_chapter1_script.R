@@ -224,8 +224,25 @@ logic_mapping_Q5
 # Run the code above and check the graph.
 
 ### FACETS ###
+# One way to add additional variables with aesthetics is to use facets to split
+# categorical variables
 
-
+# Plot by a single variable, use facet_wrap()
+facet_wrap_plot <- ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2) +
+  ggtitle(expression(atop("Engine Displacement and", "Highway Miles Per Gallon",
+                          "Separated by Class of Cars"))) +
+  xlab("Engine Displacement in Litres") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size = 16),
+        text = element_text(size = 10))
+facet_wrap_plot
+pdf("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_facet_wrap_plot.pdf")
+facet_wrap_plot
+png("r_wickham/figures/chapter1/r_for_data_science_wickham_textbook_displ_hwy_facet_wrap_plot.png")
+facet_wrap_plot
+dev.off()
 ### Position Adjustment
 # Plotting position = identity, need to ajudst the alpha transparency
 position_identity_1 <- ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) +

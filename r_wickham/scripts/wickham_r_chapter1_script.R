@@ -481,7 +481,31 @@ position_jitter <- ggplot(data = mpg) +
 position_jitter
 
 # Position Adjustments Exercises
-# 1.
+# 1. What is the problem with this plot? How could you improve it?
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + geom_point()
+dim(mpg)
+# There is problem with overplotting
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cty, y = hwy), position = "jitter")
+# By adding position = "jitter", we solve the issue
+
+# 2. What parameters to geom_jitter() control the amount of jittering?
+?geom_jitter
+# width and height
+
+# 3. Compare and contrast geom_jitter() and geom_count()
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = cty, y = hwy), position = "jitter")
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_jitter()
+
+# 4. What's the default position adjustment for geom_boxplot()?
+# Create a visualization of the mpg dataset that demonstrates it.
+?geom_boxplot
+# The default position is "dodge"
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_boxplot()
 
 ### Coordinate Systems
 # Default is cartesian coordinate, where x and y position act independently
@@ -519,4 +543,60 @@ bar
 bar + coord_flip()
   
 bar + coord_polar()
+
+# Coordinate Systems Exercises
+# 1. Turn a stacked bar chart into a pie chart using corrd_polar()
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity)) +
+  coord_polar()
+
+# 2. What does labs() do? Read documentation.
+?labs
+# labs() modifies axis, legend, and plot labels
+
+# 3, What's the difference between coord_quickmap() and coord_map()?
+# Both project a portion of the earth, which is approximately 
+# spherical, onto a flat 2D plane using any projection defined by the 
+# mapproj package
+?coord_quickmap
+# coord_quickmap is a quick approximation that does preserve straight 
+# lines. It works best for smaller areas closer to the equator.
+?coord_map
+# coord_quickmap is a quick approximation that does preserve straight 
+# lines. It works best for smaller areas closer to the equator.
+
+# Difference could be the different parameters to put in
+nz <- map_data("nz")
+nz2 <- ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "black") +
+  coord_quickmap()
+nz2
+nz3 <- ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "black") +
+  coord_map()
+nz3
+# background is slightly different
+
+# 4. What does the following plot tell you about the
+# relationship between city and highway mpg? Why is
+# coord_fixed() imnportant? What does geom_abline () do?
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+  geom_point() +
+  geom_abline() +
+  coord_fixed()
+
+?coord_fixed
+# A fixed scale coordinate system forces a specified 
+# ratio between the physical representation of data units 
+# on the axes. The ratio represents the number of units 
+# on the y-axis equivalent to one unit on the x-axis. 
+# The default, ratio = 1, ensures that one unit on the x-axis 
+# is the same length as one unit on the y-axis. 
+
+# geom_abline() gets a approximated line to fit the points
+
 

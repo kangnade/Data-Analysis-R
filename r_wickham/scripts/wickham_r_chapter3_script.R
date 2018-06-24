@@ -141,3 +141,20 @@ select(flights, one_of(vars))
 
 # 4. Does the result of running the following code ?
 select(flights, contains("TIME"))
+
+# Add New Variables with mutate()
+flights_sml <- select(flights, year:day, ends_with("delay"), distance, air_time)
+mutate(flights_sml, gain = arr_delay - dep_delay, speed = distance/air_time*60)
+# Now we can further modify
+mutate(flights_sml, gain = arr_delay - dep_delay, hours = air_time/60, gain_per_hour = gain/hours)
+# IF YOU ONLY WANT TO KEEP THE NEW VARIABLES, USE transmute()
+transmute(flights, gain = arr_delay - dep_delay, hours = air_time/60, gain_per_hour = gain/hours)
+
+# Grouped Summaries with sumarize() 
+# summarize() collapses a data frame to a single row
+summarize(flights, delay = mean(dep_delay, na.rm = TRUE))
+# summarize() is not terribly useful unless we pair it with group_by()
+by_day <- group_by(flights, year, month, day)
+summarize(by_day, delay = mean(dep_delay, na.rm = TRUE))
+
+# THE REST OF THE NOTES ARE INCLUDED IN THE dplyr tutorial practice

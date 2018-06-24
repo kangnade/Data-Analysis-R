@@ -63,4 +63,35 @@ View(delayMadeup)
 midnight6 <- filter(flights, dep_time >= 0 & dep_time <= 600) # 0 is midnight and 600 is 6 am
 View(midnight6)
 
+# 2. Another dplyr filtering helper is between(). What does it do? Can you use it to simplify
+# the code needed to answer the previous challenges?
+?between
+# shortcut for x >= left and x <= right
+# Using 1.g. as an example
+midnight6_2 <- filter(flights, between(dep_time, 0, 600))
+View(midnight6_2)
+
+# 3. How many flights have a missing dep_time? What other variables are missing?
+# What might these rows represnet?
+missing_dep_time <- filter(flights, is.na(dep_time))
+missing_dep_time
+
+# 4. Why is NA ^ 0 not missing? Why is NA | True not missing? Why is FALSE & NA not
+# missing?
+# Anything to the power of zero is 1
+# Anything or True is True
+# Anything ^ False is False
+
+# Arrange Rows with arrange()
+# Instead of selecting rows, arrange() changes order
+# e.g.
+arrange(flights, year, month, day)
+# Use desc() to reorder by a column in descending order:
+arrange(flights, desc(arr_delay))
+# Missing values are always sorted at the end
+
+
+
+
+
 

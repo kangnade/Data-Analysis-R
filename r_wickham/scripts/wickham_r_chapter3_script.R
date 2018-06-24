@@ -90,8 +90,54 @@ arrange(flights, year, month, day)
 arrange(flights, desc(arr_delay))
 # Missing values are always sorted at the end
 
+# Arrange Rows with arrange() Exercises
 
+# 1. How could you use arrange() to sort all missing values to the start? (hint: use is.na())
+arrange(flights, desc(is.na(dep_time))) # just put the column title in the is.na(title)
 
+# 2. Sort flights to find the most delayed flights. Find the flights that left earliest.
+arrange(flights, desc(dep_delay))
+# flights left earliest
+arrange(flights, dep_time)
 
+# 3. Sort flights to find the fastest flights
+arrange(flights, abs(arr_time - dep_time)) # absolute value of the difference between arr_time and dep_time
 
+# 4. Which flights traveled the longest? Which traveled the shortest?
+# Need to check the distance, shortest
+shortDis <- arrange(flights, distance)
+View(shortDis)
+# Check the longest
+longDis <- arrange(flights, desc(distance))
+View(longDis)
 
+# Select Columns with select()
+# e.g.
+select(flights, year, month, day)
+# select all columns between year and day
+select(flights, year:day)
+# select all columns except those from year to day inclusive
+select(flights, -(year:day))
+
+# Also use: start_with("abc") matches names starting with abc
+# ends_with(), contains(), matches, num_range("x",1:3)
+
+# Select Exercises
+# 1. Brainstorm as many ways as possible to select dep_time, dep_delay,
+# arr_time, arr_delay from flights
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, starts_with("dep"), starts_with("arr"))
+select(flights, contains("p_d"), contains("r_t"))
+
+# 2. What happens if you include one variable in a select call multiple times?
+select(flights, day, day, day)
+# it ignores the redundant ones
+
+# 3.What does the one_of() function do? Why might it be helpful in conjunction 
+# with this vector?
+?one_of
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+
+# 4. Does the result of running the following code ?
+select(flights, contains("TIME"))

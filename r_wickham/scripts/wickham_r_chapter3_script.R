@@ -158,3 +158,47 @@ by_day <- group_by(flights, year, month, day)
 summarize(by_day, delay = mean(dep_delay, na.rm = TRUE))
 
 # THE REST OF THE NOTES ARE INCLUDED IN THE dplyr tutorial practice
+# Combining Multiple Operations with the pipe
+
+by_dest <- group_by(flights, dest)
+delay <- summarize(by_dest, count = n(), 
+                   dist = mean(distance, na.rm = TRUE),
+                   delay = mean(arr_delay, na.rm = TRUE))
+delay <- filter(delay, count > 20, dest != "HNL")
+ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+
+# There is another way to tackle the same pronlem with pipe
+delays <- flights %>%
+  group_by(dest) %>%
+  summarize(count = n(),
+            dist = mean(distance, na.rm = TRUE),
+            delay = mean(arr_delay, na.rm = TRUE)) %>%
+  filter(count > 20, dest != "HNL")
+ggplot(data = delays, mapping = aes(x = dist, y = delay)) +
+  geom_point(aes(size = count), alpha = 1/3) +
+  geom_smooth(se = FALSE)
+
+# removing NA
+flights %>% group_by(year, month, day) %>%
+  summarize(mean = mean(dep_delay, na.rm = TRUE))
+
+# we canh also tackle by removing cancelled flights
+not_cancelled <- flights %>% filter(!is.na(dep_delay), !is.na(arr_delay)) 
+not_cancelled %>% group_by(year, month, day) %>%
+  summarize(mean = mean(dep_delay))
+
+# Counts
+
+
+
+
+
+
+
+
+
+
+
+

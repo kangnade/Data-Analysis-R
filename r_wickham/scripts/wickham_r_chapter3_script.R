@@ -312,13 +312,40 @@ not_cancelled %>%
   group_by(year, month, day) %>%
   summarize(hour_perc = mean(arr_delay > 60))
 
+# Grouping by Multiple Variables
+daily <- group_by(flights, year, month, day)
+daily
+(per_day <- summarize(daily, flights = n()))
+(per_month <- summarize(per_day, flights = sum(flights)))
+(per_year <- summarize(per_month, flights = sum(flights)))
 
+# Ungrouping
+# If you need to remove grouping, and return to operations on ungrouped data
+# use ungroup():
+daily %>%
+  ungroup %>%
+  summarize(flights = n()) # all flights
 
+# Grouped Mutates (and Filters)
+# Grouping is most useful in conjunction with summarize(), but you
+# can also do convenient operations with mutate() and filter()
 
+# Find the worst members of each group
+flights_sml %>%
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
 
+# Find all groups bigger than a threshold
+popular_dests <- flights %>%
+  group_by(dest) %>%
+  filter(n() > 365)
+popular_dests
 
-
-
+# Standardize to compute per group metrics
+popular_dests %>%
+  filter(arr_delay > 0) %>%
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>%
+  select(year:day, dest, arr_delay, prop_delay)
 
 
 

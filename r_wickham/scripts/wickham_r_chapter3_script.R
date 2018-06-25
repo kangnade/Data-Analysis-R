@@ -190,6 +190,168 @@ not_cancelled %>% group_by(year, month, day) %>%
   summarize(mean = mean(dep_delay))
 
 # Counts
+# whenever we do aggregation, it is always good to include a count n()
+# so that we know we are not drawing conclusions on very small amounts of data
+delays <- not_cancelled %>%
+  group_by(tailnum) %>%
+  summarize(delay = mean(arr_delay))
+
+ggplot(data = delays, mapping = aes(x = delay)) +
+  geom_freqpoly(bindwidth = 10)
+
+# If we draw a scatterplot of number of flights versus average delay:
+delays <- not_cancelled %>%
+  group_by(tailnum) %>%
+  summarize(delay = mean(arr_delay, na.rm = TRUE),
+            n = n())
+ggplot(data = delays, mapping = aes(x = n, y = delay)) +
+  geom_point(alpha = 1/10)
+
+delays %>%
+  filter(n > 25) %>%
+  ggplot(mapping = aes(x = n, y = delay)) +
+  geom_point(alpha = 1/10)
+
+# How the average performance of batters in baseball is related to the number
+# of times they're at bat
+# Convert to a tibble so it prints nicely
+batting <- as_tibble(Lahman::Batting)
+batting
+
+batters <- batting %>%
+  group_by(playerID) %>%
+  summarize(
+    ba = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    ab = sum(AB, na.rm = TRUE))
+batting
+batters
+
+batters %>%
+  filter(ab > 100) %>%
+  ggplot(mapping = aes(x = ab, y = ba)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+
+# sort desc(ba), the people with the best batting average are clearly lucky not skilled
+batters %>%
+  arrange(desc(ba))
+
+# Useful Summary Functions
+# mean() median() 
+# subsetting will be discussed on page 304
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarize(# average delay
+    avg_delay1 = mean(arr_delay),
+    # average positive delay)
+    avg_delay2 = mean(arr_delay[arr_delay > 0]))
+
+# Measure of spread, sd(x), IQR(x), mad(x)
+# IQR interquantile range
+# mad is median absolute deviation is robust equivalent that may be more useful for outliers
+
+# Why is distance to some destinations more variable
+# than to others?
+not_cancelled %>%
+  group_by(dest) %>%
+  summarize(distance_sd = sd(distance)) %>%
+  arrange(desc(distance_sd))
+
+# When do the first and last flights leave each day?
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarise(first = min(dep_time),
+            last = max(dep_time))
+
+# Measure of position first(x), nth(x, 2), last(x)
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarize(first_dep = first(dep_time),
+            last_dep = last(dep_time))
+
+# These functions are complementary to filtering on ranks
+# Filterding gives you all variables with each obs in a separte row:
+
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  mutate(r = min_rank(desc(dep_time))) %>%
+  filter(r %in% range(r))
+
+# You've seen n(), it takes no argument but returns the size of the current group
+# To count the number of non-missing values, use sum(!is.na(x))
+# To count the number of distinct/unique values, use n_distinct(x)
+
+# Which destinations have the most carriers?
+
+not_cancelled %>%
+  group_by(dest) %>%
+  summarize(carriers = n_distinct(carrier)) %>%
+  arrange(desc(carriers))
+
+# Counts are so useful that dplyr provides a simple helper
+not_cancelled %>%
+  count(dest)
+
+# You can optionally provide a weight variable.
+# You could use this to count the totla number of miles a plane flew
+not_cancelled %>%
+  count(tailnum, wt = distance)
+
+# Counts and proportions of logical values sum(x >10), mean(y == 0)
+# When used with numeric functions, TRUE is converted to 1, and FALSE is 0
+# This makes sum() and mean() very useful
+
+# How many flights left before 5 am?
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarize(n_early = sum(dep_time < 500))
+
+
+# What proportion of flights are delayedby more than an hour?
+not_cancelled %>%
+  group_by(year, month, day) %>%
+  summarize(hour_perc = mean(arr_delay > 60))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

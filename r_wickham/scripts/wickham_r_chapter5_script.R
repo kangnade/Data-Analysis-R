@@ -166,13 +166,89 @@ pdf("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_class_bo
 mpg_boxplot
 dev.off()
 
+# We can also reorder class based on median values
+
+mpg_reorder_boxplot <- ggplot(data = mpg, mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  geom_boxplot(mapping = aes(color = class)) +
+  ggtitle(expression(atop("Cars Highway Miles Per Gallon", "by Various Classes"))) +
+  xlab("Class") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10),
+        title = element_text(size = 14))
+png("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_reorder_class_boxplot.png")
+mpg_reorder_boxplot
+pdf("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_reorder_class_boxplot.pdf")
+mpg_reorder_boxplot
+dev.off()
+
+# If you have long variable names, we can flip it 90 degrees
+
+mpg_reorder_flip_boxplot <- ggplot(data = mpg, mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  geom_boxplot(mapping = aes(color = class)) +
+  ggtitle(expression(atop("Cars Highway Miles Per Gallon", "by Various Classes"))) +
+  ylab("Class, reordered") +
+  xlab("Highway Miles Per Gallon") +
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10),
+        title = element_text(size = 14))
+png("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_reorder_flip_class_boxplot.png")
+mpg_reorder_flip_boxplot
+pdf("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_reorder_flip_class_boxplot.pdf")
+mpg_reorder_flip_boxplot
+dev.off()
 
 
+# Two categorical variables
+ggplot(data = diamonds) +
+  geom_count(mapping = aes(x = cut, y = color))
 
+diamonds %>% 
+  count(color, cut)
 
+# To visualize 
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(x = color, y = cut)) +
+  geom_tile(mapping = aes(fill = n))
 
+# Using alpha transparency
+ggplot(data = diamonds) +
+  geom_point(mapping = aes(x = carat, y = price),
+             alpha = 1/100)
+# But transparency can be challenging with large dataset
 
+# Use geom_bin2d() and geom_hex()
+ggplot(data = smaller) +
+  geom_bin2d(mapping = aes(x = carat, y = price))
 
+# install.packages("hexbin")
+library(hexbin)
+ggplot(data = smaller) +
+  geom_hex(mapping = aes(x = carat, y = price))
 
+# Another way is to bin one continuous variable so it acts like a categorical variable
+ggplot(data = smaller, mapping = aes(x = carat, y = price)) +
+  geom_boxplot(mapping = aes(group = cut_width(carat, 0.1)))
 
+# Make the width of the boxplot proportional to the number of pooints with 
+# varwidth = TRUE
+ggplot(data = smaller, mapping = aes(x = carat, y = price)) +
+  geom_boxplot(mapping = aes(group = cut_width(carat, 0.1)), varwidth = TRUE)
 
+# Or display approximately the same number of points in each bin
+ggplot(data = smaller, mapping = aes(x = carat, y = price)) +
+  geom_boxplot(mapping = aes(group = cut_number(carat, 20)))
+
+# Patterns and Models
+library(modelr)
+mod <- lm(log(price) ~ log(carat), data =diamonds)
+
+diamonds2 <- diamonds %>%
+  add_residuals(mod) %>%
+  mutate(resid = exp(resid))
+
+ggplot(data = diamonds2) +
+  geom_point(mapping = aes(x = carat, y = resid))
+
+ggplot(data = diamonds2) +
+  geom_boxplot(mapping = aes(x = cut, y = resid))

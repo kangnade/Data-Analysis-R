@@ -101,3 +101,78 @@ q4test3 <- ggplot(data = diamonds, mapping = aes(x = price)) +
 q4test3 # If you leave the binwidth unset, ggplot2 will set a default one for you
 # otherwise, the smallest binwidth for diamonds price taks a long time for R to process
 
+# Missing Values
+# To deal with unusual or strange values, the best approach is to
+# replace it with NA 
+diamonds2 <- diamonds %>%
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+# plot based on x and y
+ggplot(data = diamonds2, mapping = aes(x = x, y = y)) +
+  geom_point()
+# to supress the warning
+ggplot(data = diamonds2, mapping = aes(x = x, y = y)) +
+  geom_point(na.rm = TRUE)
+
+# Exercises
+# 1. What happens to missing values in a histogram? What happens to missing values in a bar chart?
+# Why is there a difference?
+? histogram
+? barplot
+# 2. What does na.rm = TRUE do in mean() and sum()
+# It changes the mean value and mean is greater if na.rm = TRUE, because the sum of total obs is decreased
+# while the sum values do not change
+
+# Covariation
+# A Categorical and Continuous Variable
+# sometimes it is not good to simply use freqpoly because smaller ones are hard to see
+ggplot(diamonds) +
+  geom_bar(mapping = aes(x = cut))
+
+# To make comparision easier, we swap what is displayed on y-axis.
+# Instead of count, we use density, which is the counter standardized so that the area
+# under each frequency polygon is one
+ggplot(data = diamonds,mapping = aes(x = price, y = ..density..)) +
+  geom_freqpoly(mapping = aes(color = cut), binwidth = 500)
+# Low quality diamonds have the highest price
+
+# Another way to interpret is to display continuous variable broken down by a categorical
+# variable----->>> boxplot
+diamonds_boxplot <- ggplot(data = diamonds, mapping = aes(x = cut, y = price)) +
+  geom_boxplot(mapping = aes(color = cut)) +
+  ggtitle(expression(atop("Diamonds Prices Separated", "by Various Cuts"))) +
+  xlab("Cut (Quality") +
+  ylab("Price") +
+  theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 14),
+        title = element_text(size = 16))
+png("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_diamonds_cut_boxplot.png")
+diamonds_boxplot
+pdf("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_diamonds_cut_boxplot.pdf")
+diamonds_boxplot
+dev.off()
+
+# cut is an ordered factor, fair is worse than good, and is worse than very good and so on
+# Many categorical variables do not have such an intrinsic order
+# Take the mpg dataset as an example
+mpg_boxplot <- ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot(mapping = aes(color = class)) +
+  ggtitle(expression(atop("Cars Highway Miles Per Gallon", "by Various Classes"))) +
+  xlab("Class") +
+  ylab("Highway Miles Per Gallon") +
+  theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10),
+        title = element_text(size = 14))
+png("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_class_boxplot.png")
+mpg_boxplot
+pdf("r_wickham/figures/chapter5/r_for_data_science_wickham_textbook_mpg_class_boxplot.pdf")
+mpg_boxplot
+dev.off()
+
+
+
+
+
+
+
+
+
+
+

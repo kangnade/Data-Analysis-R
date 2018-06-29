@@ -124,22 +124,132 @@ fruit <- c("apple", "banana")
 parse_factor(c("apple", "banana", "bananana"), levels = fruit)
 
 # Dates, Date-Times, and Times
+# Three parsers depending on:
+# 1. Date (the number of days since 1970-01-01)
+# 2. Date-Time (the number of seconds since minight 1970-01-01)
+# 3. Time (the number of seconds since midnight)
+
+# When called without any additional arguments:
+
+# parse_datetime() expects an ISO8601 date-time, organized from biggest to smallest:
+# year, month, day, hour, minute, second
+parse_datetime("2010-10-01T2010")
+
+# If time is ommited, it will be set to midnight
+parse_datetime("20101001")
+
+# parse_date() expects a fourt-digit year, a - or /, the month, a - or /, then the day:
+parse_date("2010-10-01")
+
+# parse_time() expects the hour, :, minutes, optionally : and seconds, and an optional a.m./p.m.
+# specifier:
+library(hms)
+parse_time("01:10 am")
+parse_time("20:10:01")
+# Base R doesn't have a great built-in class for time data, so we use the one probided in hms
+# package
+
+# If these defaults don't work for your data you can supply your own date-time format,
+# built up of the following pieces:
+# Year %Y (4 digits), %y(2 digits; 00-69 -> 2000-2069, 70-99 -> 1970-1999)
+# Month %m(2 digits), %b (abbreviated name, like "Jan) %B(full name, "January")
+# Day %d(2 digits), %e (optional leading space)
+# Time, %H (0-23 hour format), %I (-=12 must be used with %p), %p(a.m./p.m. indicator)
+# Time, %M (minutes), %S (integer seconds), %OS (real seconds), %Z (time zone)
+# %Z (time zone) a name e.g. America/Chicago
+# Time, %z (as offset from UTC, e.g. +0800)
+
+# Non-digits
+# %. skip one nondigit character
+# %* skip any number of nondigits
+
+parse_date("01/02/15", "%m/%d/%y")
+parse_date("01/02/15", "%d/%m/%y")
+parse_date("01/02/15", "%y/%m/%d")
+
+# If you use %b or %B with non-NGLISH month names, you'll ned to set the lang argument to
+# locale(). date_names_langs(), or create your own with date_names():
+parse_date("1 janvier 2015", "%d %B %Y", locale = locale("fr"))
+
+# Exercises
+# 1. What are the most important arguments to locale()?
+?locale
+#locale(date_names = "en", date_format = "%AD", time_format = "%AT",
+#       decimal_mark = ".", grouping_mark = ",", tz = "UTC",
+#       encoding = "UTF-8", asciify = FALSE)
+
+# 2. What happens if you try and set decimal_mark and grouping_mark to the same character?
+# What happens to the default value of grouping_mark when you set decimal_mark to ","?
+# What happens to the default value of decimal_mark when you set the grouping_mark to "."?
+
+# First try set grouping_mark and decimal_mark with the same character
+parse_number(
+  "123'456'789",
+  locale = locale(decimal_mark = "'", grouping_mark = "'")
+) # Expected: 123456789 
+# Instead, you get: Error: decimal_mark %in% c(".", ",") is not TRUE
+
+# Second set decimal_mark to ","
+parse_number(
+  "123,456,789",
+  locale = locale(decimal_mark = ",")
+)
+# Result shows that decimal_mark overshadows grouping_mark
+
+# Third set grouping_mark to "."
+parse_number(
+  "123.456.789",
+  locale = locale(decimal_mark = ",")
+)
+# Result shows that grouping_mark overshadows decimal_mark
+
+# 3, I didn't discuss the date_format and time_format options to locale()
+# What do they do? Construct an example that shows when they might be useful
+
+# Locales also provide default date and time formats. The time format isn’t 
+# currently used for anything, but the date format is used when guessing 
+# column types. The default date format is %Y-%m-%d because that’s unambiguous:
+parse_date("01/02/2013", locale = locale(date_format = "%d/%m/%Y"))
 
 
+# 4. If you live outside the US, create a new locale object that encapsulates the
+# settings for the types of files you read most commonly
+locale("zh")
+parse_date("一月 26 2015", "%B %d %Y", locale = locale("zh"))
 
+# 5. What's the difference between read_csv() and read_csv2()
+?read_csv
+# read_csv() and read_tsv() are special cases of the general read_delim(). 
+# They're useful for reading the most common types of flat file data, comma 
+# separated values and tab separated values, respectively. read_csv2() uses ; 
+# for separators, instead of ,. This is common in European countries which use , 
+# as the decimal separator.
 
+# 5. What are the most common encoding used in Europe? What are the most common encoding
+# used in Asia? Do some googling to find out
+# Europe: Latin2 Latin3 Baltic Cyrillic
+# Asia: Big5 GB18030 Shift-JIS
 
+# 6. Generate the correct format string to parse each of the following dates and times:
+d1 <- "January 1, 2010"
+d2 <- "2015-Mar-07"
+d3 <- "06-Jun-2017"
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+d5 <- "12/30/14" # Dec 30, 2014
+t1 <- "1705"
+t2 <- "11:15:10.12 PM"
 
+parse_date(d1, "%B %d, %Y")
+parse_date(d2, "%Y-%b-%d")
+parse_date(d3, "%d-%b-%Y")
+parse_date(d4, "%B %d (%Y)")
+parse_date(d5, "%m/%d/%y")
+library(hms)
+parse_time(t1, "%H%M")
+parse_time(t2, "%I:%M:%S.%OS %p") # Not sure what that .12 is
 
-
-
-
-
-
-
-
-
-
+# Parsing a File
+# readr contains a CSV file that illustrates the problems in parsing files
 
 
 

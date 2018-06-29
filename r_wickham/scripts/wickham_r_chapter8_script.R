@@ -250,10 +250,64 @@ parse_time(t2, "%I:%M:%S.%OS %p") # Not sure what that .12 is
 
 # Parsing a File
 # readr contains a CSV file that illustrates the problems in parsing files
+challenge <- read_csv(readr_example("challenge.csv"))
+# It is always good to pull out the problems(), so you can explore them in more depth
+problems(challenge)
 
+# A good strategy is to work column by column until there are no problems remaining
+# Lots of parsing problems with x column
+# To fix, start by copying and pasting the column specification into your original call
+challenge <- read_csv(readr_example("challenge.csv"), col_types = cols(x = col_integer(), y = col_character()))
+# Then you can tweak the type of the x column:
+challenge <- read_csv(readr_example("challenge.csv"), col_types = cols(x = col_double(), y = col_character()))
+# That fixes the first problem, but if we look at the last few rows, you'll see that they'are dates stored
+# in a character vector"
+tail(challenge)
+# You can fix that by specifying that y is a date column:
+challenge <- read_csv(readr_example("challenge.csv"), col_types = cols(
+  x = col_double(), y = col_date()
+))
+tail(challenge)
 
+# Other Strategies
+# There are a few other general strategies to help you parse files:
+# In the previous example, we just got unlucky
+# If we look at one more row than the default, we can correctly parse in one shot:
+challenge2 <- read_csv(readr_example("challenge.csv"),
+                       guess_max = 1001)
+challenge2
+# Sometimes it is easier to diagnose problems if you just read in all the columns
+# as character vectors
+challenge2 <- read_csv(readr_example("challenge.csv"),
+                       col_types = cols(.default = col_character()))
+challenge2
+# This is particularly useful in conjunction with type_convert(), which applies the parsing
+# heuristics to the character columns in a data frame
+df <- tribble(
+  ~x, ~y,
+  "1", "1.21",
+  "2", "2.32",
+  "3", "4.56"
+)
+df
+#Note the column types
+type_convert(df)
 
+# Writing to a File
+# readr also comes with two useful functions for writing data back to the disk
+# write_csv() and write_tsv()
+# Both functions increase the chances of the output file bveing read back in correctly
+# But once you saved to CSV, the type information is lost, and you have to re-create the
+# column specification every time you load in. So there are two alternatives:
+# --- write_rds() and read_rds()
+# These are uniform wrappers around the base functions readRDS() and saveRDS().
+# These store data in R's custom binary format called RDS:
+write_rds(challenge, "challenge.rds")
+read_rds("challenge.rds")
 
-
-
-
+# The feather package implements a fast binary file format that can be shared across prgramming
+# languages
+# install.packages("feather")
+library(feather)
+write_feather(challenge, "challenge.feather")
+read_feather("challenge.feather")

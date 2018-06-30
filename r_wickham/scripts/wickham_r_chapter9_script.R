@@ -129,11 +129,147 @@ table3 %>%
   separate(rate, into = c("case", "population"),
            convert = TRUE)
 
+# You can also pass a vector of inegers to sep.
+# separate() will interpret the integers as positions to split at. Positive values start at 1
+# on the far left of the strings; negative values start at -1 on the far right of the strings. 
+# The length of sep should be one less than the number of names in into.
+table3 %>%
+  separate(year, into = c("century", "year"), sep = 2)
 
+# Unite
+# unite() is the inverse of separate(). It combines smultiple columns into a single column.
+# You'll need it much less frequently than separate() but it is still a useful tool
 
+# Unite and rejoin the century and year columns, we use table5
+table5
+table5 %>%
+  unite(new, century, year)
+# But this gives a _ between the numbers from different columns
+# We do need to use the sep argument.
+# The default is "_", we need ""
+table5 %>%
+  unite(new, century, year, sep = "")
 
+# Exercises:
+# 1. What do the extra and fill arguments do in separate()? 
+# Experiment with the various options for the following two toy datasets
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"))
 
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>% 
+  separate(x, c("one", "two", "three"))
+?separate
+# The extra argument tells separate what to do if there are too many pieces, 
+# and the fill argument if there aren't enough.
+# Extra gets dropped
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"), extra = "drop")
+# Use merge
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>%
+  separate(x, c("one", "two", "three"), extra = "merge")
+# In merging, f,g appears in the value cell
 
+# In the other case, one of the entry columns has too few
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"))
+# So it prints a NA in the cell 
+# Alternative option for fill is right, to fill missing values from the right with no warning
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"), fill = "right")
+# If we fill from left side
+tibble(x = c("a,b,c", "d,e", "f,g,i")) %>%
+  separate(x, c("one", "two", "three"), fill = "left")
+
+# 2. Both unite() and separate() have a remove argument. What does it do? Why would you set it to FALSE?
+# You would set it to FALSE if you want to create a new variable, but keep the old one.
+
+# Missing Values
+# ----Explicitly flagged with NA
+# ----Implicitly not present in the data
+
+# Illustrate with a simple example:
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+stocks
+# The return for the fourth quarter of 2015 is explicitly missing, 
+# because the cell where its value should be instead contains NA.
+# The return for the first quarter of 2016 is implicitly missing, 
+# because it simply does not appear in the dataset.
+
+# To show missing values, we can spread the stocks by year with values as return
+stocks %>%
+  spread(year, return)
+
+# Additionally, you can set na.rm = TRUE in gather() to turn explicit missing values implicit
+stocks %>%
+  spread(year, return) %>%
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+
+# Another important tool for making missing values explicit in tiday data is complete()
+stocks %>%
+  complete(year, qtr)
+# complete() takes a set of columns, and finds all unique combinations. 
+# It then ensures the original dataset contains all those values, filling in explicit NAs where necessary.
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+treatment
+# You can fill in these missing values with fill(). It takes a set of columns 
+# where you want missing values to be replaced by the most recent non-missing value 
+# (sometimes called last observation carried forward).
+treatment %>%
+  fill(person)
+
+# Exercises:
+# 1. Compare and contrast the fill arguments to spread() and complete()
+?spread
+?complete
+# In spread, the fill argument explicitly sets the value to replace NAs. In complete, 
+# the fill argument also sets a value to replace NAs but it is named list, 
+# allowing for different values for different variables. Also, both cases replace 
+# both implicit and explicit missing values.
+
+# 2. What does the direction argument to fill() do?
+# With fill, it determines whether NA values should be replaced by the 
+# previous non-missing value ("down") or the next non-missing value ("up").
+
+# Case Study
+who
+# Need to gather all columNhs from new_sp_014 to newrel_f65
+# We do not know what they are, so we give them the generic key
+who1 <- who %>%
+  gather(new_sp_m014:newrel_f65, key = "key",
+         value = "cases",
+         na.rm = TRUE)
+who1
+who1 %>%
+  count(key)
+# Fix names and try separate the data
+who2 <- who1 %>%
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+
+who3 <- who2 %>%
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+# We might as well drop the new column because it is constant in
+# this dataset
+who3 %>%
+  count(new)
+who4 <- who3 %>%
+  select(-new, -iso2, -iso3)
+who4
+# Next we'll separate sexage into sex and age by splitting after the first character
+who5 <- who4 %>%
+  separate(sexage, c("sex", "age"), sep = 1) # sep=number number is the position
+who5
 
 
 

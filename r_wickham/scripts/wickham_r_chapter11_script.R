@@ -103,4 +103,49 @@ str_pad("TCU", 5, side = "left")
 # Chapter Programming
 
 # Matching Patterns and Regular Expressions
+# Basic Matches
+# Use str_view() and str_view_all()
+# Appears in Viewer to the lower right corner of RStudio
+str_view(univ, "U")
+
+# Next we can step up in complexity, . , which matches any character
+str_view(univ, ".U.")
+
+# Match .
+dot <- "\\."
+writeLines(dot)
+
+# This tells R to look for an explicit
+str_view(c("abv", "a.c", "bef"), "a\\.c")
+
+# 1. Explain why each of these strings don’t match a \: "\", "\\", "\\\".
+# "\": This will escape the next character in the R string.
+#  "\\": This will resolve to \ in the regular expression, which will escape the next character in the
+# regular expression.
+# "\\\": The first two backslashes will resolve to a literal backslash in the regular expression, the third
+# will escape the next character. So in the regular expression, this will escape some escaped character.
+
+# 2. How would you match the sequence "'\ ?
+str_view("\"'\\", "\"'\\\\")
+
+# 3. What patterns will the regular expression \..\..\.. match? How would you represent it as a string?
+str_view(c(".a.b.c", ".a.b", "....."), c("\\..\\..\\.."))
+
+# Anchors
+# regular expressions will match any part of a string. It is often useful to anchor the regular expression so that
+# it matches from the start or end of the string
+# --- ^ to match the start of the string
+# --- $ to match the end of the string
+# To force a regular expression to only match a complete string, anchor it with both ^ and $
+x <- c("apple", "apple juice", "apple pie")
+str_view(x, "apple")
+str_view(x, "^apple$")
+
+# Exercises
+# 1. How would you match the literal string "$ˆ$"?
+str_view(c("$^$", "ab$^$sfas"), "^\\$\\^\\$$")
+
+
+
+
 

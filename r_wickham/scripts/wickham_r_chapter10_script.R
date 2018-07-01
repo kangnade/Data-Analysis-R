@@ -143,26 +143,128 @@ flights2 %>%
   select(-origin, -dest) %>%
   mutate(name = airlines$name[match(carrier, airlines$carrier)])
 
+# Mutating Joins Exercises
+# Compute the average delay by destination, then join on the airports data frame so you can show the spatial
+# distribution of delays. Here’s an easy way to draw a map of the United States:
+
+library(purrr)
+
+airports %>%
+  semi_join(flights, c("faa" = "dest")) %>%
+  ggplot(mapping = aes(lon, lat)) +
+  borders("state") +
+  geom_point() +
+  coord_quickmap()
+
+# You might want to use the size or color of the points to display the average delay for each airpot
+avg_dest_delay <- flights %>%
+  group_by(dest) %>%
+  summarise(delay = mean(arr_delay, na.rm = TRUE)) %>%
+  inner_join(airports, by = c(dest = "faa"))
+avg_dest_delay %>%
+  ggplot(mapping = aes(lon, lat, colour = delay)) +
+  borders("state") +
+  geom_point() +
+  coord_quickmap()
+
+# 2. Add the location of the origin and destination (i.e. the lat and lon) to flights
+airports
+flights_loc <- flights %>%
+  left_join(airports, by = c(dest = "faa")) %>%
+  left_join(airports, by = c(origin = "faa")) %>%
+  head()
+flights_loc
+
+# 3. Is there a relationship between the age of a plane and its delay?
+plane_age <- planes %>%
+  mutate(age = 2018 - year) %>%
+  select(tailnum, age)
+flights %>%
+  inner_join(plane_age, by = "tailnum") %>%
+  group_by(age) %>%
+  filter(!is.na(dep_delay)) %>%
+  summarise(delay = mean(dep_delay)) %>%
+  ggplot(mapping = aes(x = age, y = delay)) +
+  geom_point() +
+  geom_line()
+# There is no relationship between the age of a plane and its delay
+
+# 4. What weather conditions make it more likely to see a delay?
+weather
+flight_weather <- flights %>%
+  inner_join(weather, by = c("origin" = "origin", "year" = "year",
+                             "month" = "month", "day" = "day",
+                             "hour" = "hour"))
+flight_weather %>%
+  group_by(precip) %>%
+  summarise(delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(mapping = aes(x = precip, y = delay)) +
+  geom_line() + geom_point()
+
+# Any precipitation is associated with delay
+
+# 5. What happened on June 13, 2013? Display the spatial pattern of the delays, and then use
+# Google to cross-reference with the weather.
+
+# storms in Southeastern US
+library(viridis)
+flights %>%
+  filter(year == 2013, month == 6, day == 13) %>%
+  group_by(dest) %>%
+  summarise(delay = mean(dep_delay, na.rm = TRUE)) %>%
+  inner_join(airports, by = c("dest" = "faa")) %>%
+  ggplot(aes(y = lat, x = lon, size = delay, colour = delay)) +
+  borders("state") +
+  geom_point() +
+  coord_quickmap() +
+  scale_color_viridis()
 
 
+# Filtering Joins
+# 1. What does it mean for a flight to have a missing tailnum? 
+# What do the tail numbers that don’t have a matching record in planes have in common? 
+# (Hint: one variable explains ~90% of the problems.)
 
+flights %>% 
+  anti_join(planes, by = "tailnum") %>%
+  count(carrier, sort =TRUE)
 
+# AA and MQ do not report tail numbers.
 
+# 2. Filter flights to only show flights with planes that have flown at least 100 flights
+planes_al100 <- filter(flights) %>%
+  group_by(tailnum) %>%
+  count() %>%
+  filter(n > 100)
+planes_al100
+flights %>%
+  semi_join(planes_al100, by = "tailnum")
 
+# 3. No Data
 
+# 4. Find the 48 hours that have the worst delays. Cross-reference it with the weather data.
+flights %>%
+  group_by(year, month, day) %>%
+  summarise(all_24 = sum(dep_delay, na.rm = TRUE) + sum(arr_delay, na.rm = TRUE)) %>%
+  mutate(all_48 = all_24 + lag(all_24)) %>%
+  arrange(desc(all_48))
 
+# 5. What does anti_join(flights, airports, by = c("dest" = "faa")) tell you? What does
+# anti_join(airports, flights, by = c("dest" = "faa")) tell you?
 
+# The first tells you the flights going to foreign airports, which are not in FAA
+# The second tells you the airports that have no planes from NYC
 
-
-
-
-
-
-
-
-
-
-
+# 6. You might expect that there’s an implicit relationship between plane and airline, because each plane is flown
+# by a single airline. Confirm or reject this hypothesis using the tools you’ve learned above.
+airplane_multi_carrier <- flights %>%
+  group_by(tailnum, carrier) %>%
+  count() %>%
+  filter(n() > 1) %>%
+  select(tailnum) %>%
+  distinct()
+airplane_multi_carrier
+# No such thing in this dataset.
 
 
 

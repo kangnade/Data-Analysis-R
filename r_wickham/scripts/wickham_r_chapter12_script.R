@@ -82,3 +82,108 @@ gss_cat %>%
   head(5)
 # So the most common partyid is independent
 
+# 3. Which relig does denom apply to? How can you find out with a table? With visualization?
+# To access the levels directly:
+levels(gss_cat$denom)
+# It applies to protestants
+gss_cat %>%
+  filter(!denom %in% c("No answer", "Other", "Don't know", "Not applicable",
+                       "No denomination")) %>%
+  count(relig)
+# Visualization
+gss_cat %>%
+  count(relig, denom) %>%
+  ggplot(aes(x = relig, y = denom, size = n)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90), title = element_text(size = 9))
+
+# Modifying Factor Order
+# It is often useful to change the order of the factor levels in a visualization
+# If you want to explore the avg # of hours spent watching TV per day across religions
+relig <- gss_cat %>%
+  group_by(relig) %>%
+  summarize(age = mean(age, na.rm = TRUE),
+            tvhours = mean(tvhours, na.rm = TRUE),
+            n = n())
+ggplot(relig, aes(tvhours, relig)) + geom_point()  
+
+# It is hard to read this plot
+# To improve, we use fct_reorder().
+# fct_reorder(factor f, x - numeric vector to reorder, option)
+ggplot(relig, aes(tvhours, fct_reorder(relig, tvhours))) + geom_point()
+# Reordering religion makes it much easier to see that people in the "Don't know" category
+# watch much more TV.
+
+# Complex trasnformation should be done in mutate() rather than in aes()
+# such as:
+relig %>%
+  mutate(relig = fct_reorder(relig, tvhours)) %>%
+  ggplot(aes(tvhours, relig)) +
+  geom_point()
+
+# What if we want a similar plot looking at how average age varies across income level?
+rincome <- gss_cat %>%
+  group_by(rincome) %>%
+  summarize(age = mean(age, na.rm = TRUE),
+            tvhours = mean(tvhours, na.rm = TRUE),
+            n = n())
+ggplot(rincome, aes(age, fct_reorder(rincome, age))) +
+  geom_point()
+# Here it does make sense to pull "Not applicable" to the front with the other special
+# levels.
+# You can use fct_relevel(). It takes a factor f, and then any number of levels that you want to
+# move to the front of the line
+ggplot(rincome, aes(age, fct_relevel(rincome, "Not applicable"))) + geom_point()
+
+# Another type of reordering is useful when you are coloring the lines on a plot
+# fct_reorder2() reorders factor by the y values associated with the largest x values.
+# This makes the plot easier to read because the line colors line up with the legend:
+by_age <- gss_cat %>%
+  filter(!is.na(age)) %>%
+  count(age, marital) %>%
+  group_by(age) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(by_age, aes(age, prop, colour = marital)) +
+  geom_line(na.rm = TRUE)
+
+ggplot(by_age, aes(age, prop, colour = fct_reorder2(marital, age, prop))) +
+  geom_line() +
+  labs(colour = "marital")
+
+# Finally, for bar plots, you can use fct_infreq() to order levels in increasing frequency
+gss_cat %>%
+  mutate(marital = marital %>% fct_infreq() %>% fct_rev()) %>%
+  ggplot(aes(marital)) +
+  geom_bar()
+# fct_rev() in reverse order
+
+# Exercises
+# 1`. There are some surprisingly high numbers in tvhours, is this a good summary?
+summary(gss_cat[["tvhours"]])
+gss_cat %>%
+  filter(!is.na(tvhours)) %>%
+  ggplot(aes(x = tvhours)) +
+  geom_histogram(binwidth = 1)
+# Looks fine to me
+
+# 2. For each the factor in gss_cat, identify whether the order of the levels is arbitrary
+# or principled
+# Need to use something in Chapter 21
+keep(gss_cat, is.factor) %>% names()
+# There are five six categorical variables: marital, race, rincome, partyid, relig, denom.
+levels(gss_cat[["marital"]])
+gss_cat %>%
+  ggplot(aes(x = marital))+
+  geom_bar()
+# ordering in marital is somewhat principled
+# Check race:
+levels(gss_cat[["race"]])
+gss_cat %>%
+  ggplot(aes(race)) +
+  geom_bar() +
+  scale_x_discrete(drop = FALSE)
+# The race level is principled
+
+# 3. Why did moving “Not applicable” to the front of the levels move it to the bottom of the plot?
+# Because that gives the level “Not applicable” an integer value of 1.

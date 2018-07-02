@@ -187,3 +187,88 @@ gss_cat %>%
 
 # 3. Why did moving “Not applicable” to the front of the levels move it to the bottom of the plot?
 # Because that gives the level “Not applicable” an integer value of 1.
+
+# Modifying Factor Levels
+# To clarify labels for publication, and collapse levels for high-level displays.
+# fct_recode(), and take partyid as an example
+gss_cat %>% 
+  count(partyid) %>%
+  arrange(desc(n))
+
+# These levels are terse and inconsistent, let's tweak them to be longer and use a parallel construction:
+gss_cat %>%
+  mutate(partyid = fct_recode(partyid,
+                              "Republican, string" = "Strong Republican",
+                              "Republican, weak" = "Not str republican",
+                              "Independent, near rep" = "Ind,near rep",
+                              "Independent, near dem" = "Ind,near dem",
+                              "Democrat, weak" = "Not str democrat",
+                              "Democrat, strong" = "Strong democract",
+                              "Other" = "No answer",
+                              "Other" = "Don't know",
+                              "Other" = "Other party")) %>%
+  count(partyid)
+
+# If you want to collapse a lot of levels, use fct_collapse(), it is a useful variant of fct_recode()
+# For each new variable, you can provide a vector of old levels
+gss_cat %>%
+  mutate(partyid = fct_collapse(partyid,
+                                other = c("No answer", "Don't know", "Other party"),
+                                rep = c("Strong republican", "Not str republican"),
+                                ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                                dem = c("Not str democrat", "Strong democrat"))) %>%
+  count(partyid)
+
+# Sometimes you just want to lump together all the small groups to make a plot or table simpler. That's the job of
+# fct_lump()
+gss_cat %>%
+  mutate(relig = fct_lump(relig)) %>%
+  count(relig)
+
+# This lump, however, is not always helpful or useful
+# We can use the n parameter to specify how many groups we want to keep:
+gss_cat %>%
+  mutate(relig = fct_lump(relig, n = 10)) %>%
+  count(relig, sort = TRUE) %>%
+  print(n = Inf)
+
+# 1. How have the proportions of people identifying as Democrat, Republican, and Independent changed over time?
+gss_cat %>%
+  mutate(partyid = fct_collapse(partyid,
+                                other = c("No answer", "Don't know", "Other party"),
+                                rep = c("Strong republican", "Not str republican"),
+                                ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                                dem = c("Not str democrat", "Strong democrat"))) %>%
+  group_by(year) %>%
+  count(partyid) %>%
+  mutate(proportion = n / sum(n)) %>%
+  ggplot(aes(x = year, y = proportion, color = fct_reorder2(partyid, year, proportion))) +
+  geom_point() +
+  geom_line() +
+  labs(color = "Party ID.")
+
+# 2. How could you collapse rincome into a small set of categories?
+levels(gss_cat$rincome)
+library(stringr)
+test <- str_c("$", c("5000", "6000", "7000", "8000"),
+              " to ", c("5999", "6999", "7999", "9999"))
+test      
+test1 <- str_c("apple", "banana", "pear")
+test1
+test2 <- str_c(c("You", "You", "You"), " and ", c("Me", "Her", "Them"))
+test2
+
+# We can use str_c()
+gss_cat %>%
+  mutate(rincome =
+           fct_collapse(
+             rincome,
+             `Unknown` = c("No answer", "Don't know", "Refused", "Not applicable"),
+             `Lt $5000` = c("Lt $1000", str_c("$", c("1000", "3000", "4000"),
+                                              " to ", c("2999", "3999", "4999"))),
+             `$5000 to 10000` = str_c("$", c("5000", "6000", "7000", "8000"),
+                                      " to ", c("5999", "6999", "7999", "9999"))
+           )) %>%
+  ggplot(aes(x = rincome)) +
+  geom_bar() +
+  coord_flip()

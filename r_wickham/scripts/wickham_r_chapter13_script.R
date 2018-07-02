@@ -33,3 +33,43 @@ ymd_hms("2019/12/04 20:12:12")
 ymd(20181204, tz = "UTC")
 
 # From Individual Components
+flights <- nycflights13::flights
+flights %>% select(
+  year, month, day, hour, minute
+)
+
+# To create from this sort of input, use make_datetime() for date-times
+flights %>%
+  select(year, month, day, hour, minute) %>%
+  mutate(departure = make_datetime(year, month, day, hour, minute))
+
+# Let's do the same thing for each of the four time columns in flights
+# The times are represented in a slightly odd format, so we use modulus arithmetic
+# to pull out the hour and minute components.
+# Once I've created the date-time variables, I focus on the variables we'll explore
+# for the rest of the chapter
+make_datetime_100 <- function(year, month, day, time){
+  make_datetime(year, month, day, time%/%100, time%%100)
+}
+
+flights_dt <- flights %>%
+  filter(!is.na(dep_time), !is.na(arr_time)) %>%
+  mutate(dep_time = make_datetime_100(year, month, day, dep_time),
+         arr_time = make_datetime_100(year, month, day, arr_time),
+         sched_dep_time = make_datetime_100(year, month, day, sched_dep_time),
+         sched_arr_time = make_datetime_100(year, month, day, sched_arr_time)) %>%
+  select(origin, dest, ends_with("delay"), ends_with("time"))
+  
+flights_dt
+
+# With this data, I can visualize the distribution of departure times across the year
+flights_dt %>%
+  ggplot(aes(dep_time)) +
+  geom_freqpoly(binwidth = 86400) # 86400 seconds = 1 day
+
+# Or within a single day:
+flights_dt %>%
+  filter(dep_time < ymd(20130102)) %>%
+  ggplot(aes(dep_time)) +
+  geom_freqpoly(binwidth = 600) # 600 = 10 min
+

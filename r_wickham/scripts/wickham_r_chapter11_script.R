@@ -482,5 +482,54 @@ str_split(e, "")
 
 # Other Types of Pattern
 # When you use a pattern that's a string, it is automatically wrapped into a call to regex():
+str_view(fruit, "nana")
+# the code above is shorthand for
+str_view(fruit, regex("nana"))
 
+# You can use other arguments of regex() to control details
 
+# ignore_case = TRUE
+bananas <- c("banana","Banana", "BANANA")
+str_view(bananas, "banana")
+str_view(bananas, regex("banana", ignore_case = TRUE))
+
+# multiline = TRUE allows ^ and $ to match the start and end of each line
+# rather than the start and end of the complete string:
+x <- "Line 1\nLine 2\nLine 3"
+str_extract_all(x, regex("^Line", multiline = TRUE))
+
+# comments = TRUE allows you to use comments and white space to make complex regular
+# expressions more understandable. Spaces are ignored, as is everything after #. To match
+# a literal space, you'll need to escape it: "\\ "
+phone <- regex("
+  \\(?     # optional opening parens
+               (\\d{3}) # area code
+               [) -]?   # optional closing parens, space, or dash
+               (\\d{3}) # another three numbers
+               [ -]?    # optional space or dash
+               (\\d{3}) # three more numbers
+               ", comments = TRUE)
+str_match("514-791-8141", phone)
+
+# dotall = TRUE allows . to match all including \n
+
+# There are three other funcitons you can use instead of regex()
+# fixed() matches exactly the spefified sequence of bytes
+# It ignores all special regular expressions and operates at very low level
+
+# coll() compares strings using standard collation rules
+
+# Exercises
+# 1. How would you find all strings containing \ with regex() and fixed()
+str_subset(c("a\\b", "ab"), "\\\\")
+str_subset(c("a\\b", "ab"), fixed("\\"))
+
+# 2. What are the most common words in sentence
+str_extract_all(sentences, boundary("word")) %>%
+  unlist() %>%
+  str_to_lower() %>%
+  tibble() %>%
+  set_names("word") %>%
+  group_by(word) %>%
+  count(sort = TRUE) %>%
+  head(5)

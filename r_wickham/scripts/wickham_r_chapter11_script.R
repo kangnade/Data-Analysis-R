@@ -533,3 +533,4 @@ str_extract_all(sentences, boundary("word")) %>%
   group_by(word) %>%
   count(sort = TRUE) %>%
   head(5)
+

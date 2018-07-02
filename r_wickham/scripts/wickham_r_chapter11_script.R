@@ -145,6 +145,105 @@ str_view(x, "^apple$")
 # 1. How would you match the literal string "$ˆ$"?
 str_view(c("$^$", "ab$^$sfas"), "^\\$\\^\\$$")
 
+# 2。 Given the corpus of common words in stringr::words, create regular expressions that find all words that:
+# 1. Start with “y”.
+# 2. End with “x”
+# 3. Are exactly three letters long. (Don’t cheat by using str_length()!)
+str_view(stringr::words, "^y", match = TRUE)
+str_view(stringr::words, "x$", match = TRUE)
+str_view(stringr::words, "^...$", match = TRUE)
+str_view(stringr::words, ".......", match = TRUE)
+
+# Character Classes and Alternatives
+# There are a number of special patterns that match more than one character
+# \d matches any digit
+# \s matches any whitespace
+# [abc] matches a b or c
+# [^abc] matches anything except a b c 
+# Need to escape for string, so \\d, \\s
+
+# You can use alternation to pick between one or more alternative patterns
+# abv|xyz, abv|d..f
+# Use parenthesis to make it clear
+str_view(c("grey", "gray"), "gr(e|a)y")
+
+# Exercises
+# 1. Create regular expressions to find all words that:
+# 1. Start with a vowel.
+# 2. That only contain consonants. (Hint: thinking about matching “not”-vowels.)
+# 3. End with ed, but not with eed.
+# 4. End with ing or ise.
+
+str_view(stringr::words, "^[aeiou]", match = TRUE)
+str_view(stringr::words, "^[^aeiou]+$", match=TRUE)
+str_view(stringr::words, "^ed$|[^e]ed$", match = TRUE)
+str_view(stringr::words, "i(ng|se)$", match = TRUE)
+
+# 2. Empirically verify the rule “i before e except after c”.
+str_view(stringr::words, "(cei|[^c]ie)", match = TRUE)
+str_view(stringr::words, "(cie|[^c]ei)", match = TRUE)
+
+# 3. Is q'' always followed by a "u"?
+str_view(stringr::words, "q[^u]", match = TRUE)
+
+# 4. NA
+
+# 5. Expression match telephone numbers
+tele <- c("5312254", "2248450")
+str_view(tele, "[0-9][0-9][0-9][0-9][0-9][0-9][0-9]")
+str_view(tele, "\\d\\d\\d\\d\\d\\d\\d")
+
+# Repetition
+# Controlling how many times a pattern matches:
+# ? :   0 or 1
+# + :   1 or more
+# * :   0 or more
+x <- "1888 is the longest year in Roman numerals: MDCCCLXXXVIII"
+str_view(x, "CC?")
+str_view(x, "CC+")
+str_view(x, 'C[LX]+')
+
+# You can also specify the number of matches precisely:
+# {n} exactly n
+# {n,} n or more
+# {, m} at most m
+# {n, m} between n and m
+str_view(x, "C{2}")
+str_view(x, "C{2,}")
+str_view(x, "C{2,3}")
+# By default these matches are “greedy”: they will match the longest string possible. 
+# You can make them “lazy”, matching the shortest string possible by putting a ? after them. 
+# This is an advanced feature of regular expressions, but it’s useful to know that it exists:
+str_view(x, "C{2,3}?")
+str_view(x, "C[LX]+?")
+
+# Exercises
+# 1. Describe the equivalents of ?, +, * in {m,n} form.
+# ? is {,1}
+# + is {1,}
+# * no equivalent
+
+# 2. Describe in words what these regular expressions match: 
+# (read carefully to see if I’m using a regular expression or a string that defines a regular expression.)
+# 1. ˆ.*$
+# 2. "\\{.+\\}"
+# 3. \d{4}-\d{2}-\d{2}
+# 4. "\\\\{4}"
+
+# 3. Create regular expressions to find all words that:
+# 1. Start with three consonants.
+# 2. Have three or more vowels in a row.
+# 3. Have two or more vowel-consonant pairs in a row.
+str_view(stringr::words, "^[^aeiou]{3}")
+str_view(stringr::words, "[aeiou]{,3}")
+str_view(stringr::words, "([aeiou][^aeiou]){2,}")
+
+# Grouping and Backreferences
+# Earlier, you learned about parentheses as a way to disambiguate complex expressions. 
+# Parentheses also create a numbered capturing group (number 1, 2 etc.). 
+# A capturing group stores the part of the string matched by the part of the regular expression inside the parentheses. 
+# You can refer to the same text as previously matched by a capturing group with backreferences, like \1, \2 etc.
+str_view(fruit, "(..)\\1", match = TRUE)
 
 
 

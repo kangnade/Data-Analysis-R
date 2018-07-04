@@ -72,3 +72,36 @@ variance(1:100)
 var(1:100)
 # Result is the same as the default variance function in R
 
+skew <- function(x){
+  x <- x[!is.na(x)]
+  n <- length(x)
+  m <- mean(x)
+  upper <- sum((x - m)^3)/n
+  lower <- sqrt(sum((x - m)^2)/(n-1))^3
+  upper / lower
+}
+skew(rgamma(10, 1, 1))
+
+
+# 5. Write both_na(), a function that takes two vectors of the same length and returns the number of positions 
+# that have an NA in both vectors.
+TRUE & FALSE
+sum(TRUE & FALSE, TRUE&TRUE, FALSE&FALSE)
+sum(TRUE, FALSE, FALSE)
+sum(FALSE, FALSE, FALSE)
+
+# Answer:
+both_na <- function(x, y){
+  sum(is.na(x) & is.na(y))
+}
+
+x <- c(NA, NA, NA, 2, 4)
+y <- c(1, NA, NA, 2, 2)
+both_na(x, y)
+
+# 6. What do the following functions do? Why are they useful even though they are so short?
+is_directory <- function(x) file.info(x)$isdir
+is_readable <- function(x) file.access(x, 4) == 0
+# The is_directory checks whether x is a path, and is_readable checks whether the path in x is readable, or
+# is it able to access the file in the path
+

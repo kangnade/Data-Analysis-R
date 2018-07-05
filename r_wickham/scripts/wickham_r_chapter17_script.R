@@ -327,3 +327,84 @@ col_summary_num <- function(df, fun){
 col_summary_num(iris, mean)
 
 
+# The Map Functions and Exercises -----------------------------------------
+# To do the same calculation as above
+iris %>%
+  map_dbl(mean)
+
+# 1.
+# Compute the mean of every column in mtcars.
+# Determine the type of each column in nycflights13::flights.
+# Compute the number of unique values in each column of iris.
+# Generate 10 random normals for each of  
+# μ=  −10,  0,  10, and  100.
+# Think about the output, sequence, and body before you start writing the loop.
+map_dbl(mtcars, mean)
+# 2. How can you create a single vector that for each column in a data frame indicates whether or not it’s a factor?
+map_chr(nycflights13::flights, typeof)
+# 3. What happens when you use the map functions on vectors that aren’t lists? What does map(1:5, runif) do? Why?
+map(1:5, runif)  
+?runif
+runif(5)
+# Get runif with inputs from 1:5
+
+# 4. What does map(-2:2, rnorm, n = 5) do? Why? What does map_dbl(-2:2, rnorm, n = 5) do? Why?
+map(-2:2, rnorm, n = 5)
+?rnorm
+# This takes samples of n = 5 from normal distributions of means -2, -1, 0, 1, and 2, and returns a list with
+# each element a numeric vectors of length 5.
+# 5. Rewrite map(x, function(df) lm(mpg ~ wt, data = df)) to eliminate the anonymous function.
+map(list(mtcars), ~ lm(mpg ~ wt, data = .))
+?map
+
+every2 <- function(x, p, ...) {
+  for (i in x) {
+    if (!p(i, ...)) {
+      # If any is FALSE we know not all of then were TRUE
+      return(FALSE)
+    }
+  }
+  # if nothing was FALSE, then it is TRUE
+  TRUE
+}
+every2(1:3, function(x) {x > 1})
+#> [1] FALSE
+every2(1:3, function(x) {x > 0})
+#> [1] TRUE
+
+
+
+# 2. Create an enhanced col_sum() that applies a summary function to every numeric column in a data frame.
+
+col_sum2 <- function(df, f,  ...) {
+  map(keep(df, is.numeric), f, ...)
+}
+
+col_sum2(iris, mean)
+
+# 3. A possible base R equivalent of col_sum() is:
+col_sum3 <- function(df, f) {
+  is_num <- sapply(df, is.numeric)
+  df_num <- df[, is_num]
+  
+  sapply(df_num, f)
+}
+
+# But it has a number of bugs as illustrated with the following inputs:
+df <- tibble(
+  x = 1:3, 
+  y = 3:1,
+  z = c("a", "b", "c")
+)
+# OK
+col_sum3(df, mean)
+# Has problems: don't always return numeric vector
+col_sum3(df[1:2], mean)
+col_sum3(df[1], mean)
+col_sum3(df[0], mean)
+
+# The problem is that sapply does not always return numeric vectors. If no columns are selected, instead of
+# returning an empty numeric vector, it returns an empty list. This causes an error since we can’t use a list
+# with [.
+
+sapply(df[0], is.numeric)

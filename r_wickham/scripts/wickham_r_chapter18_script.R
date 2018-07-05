@@ -321,3 +321,14 @@ test %>%
   spread(model, pred) # spread the result model and pred columns
 
 
+# 3. What does geom_ref_line() do? What package does it come from? Why is displaying a reference line in
+# plots showing residuals useful and important?
+
+# The geom geom_ref_line() adds as reference line to a plot.
+
+# 4. Why might you want to look at a frequency polygon of absolute residuals? What are the pros and cons
+# compared to looking at the raw residuals?
+
+# Basically we want to check the residuals
+# The freq_ploy shows the absolute values of the residuals
+# However, simply using absolute values will miss information about the residuals such as the signs of the residuals

@@ -270,20 +270,20 @@ ggplot(sim1, aes(x, resid)) +
 sim1_mod_loess <- loess(y~x, data = sim1) 
 sim1_mod <- lm(y~x, data= sim1)
 
-sim2 <- sim1 %>%
+sim_2 <- sim1 %>%
   add_predictions(sim1_mod) %>%
   add_residuals(sim1_mod) %>%
   add_predictions(sim1_mod_loess, var = "loess_predictions") %>%
   add_residuals(sim1_mod_loess, var = "loess_residuals")
-sim2
+sim_2
 
 # Plot predictions
-ggplot(sim2, aes(x = x)) +
+ggplot(sim_2, aes(x = x)) +
   geom_point(aes(y = y)) +
   geom_line(aes(y = loess_predictions), size = 2, color = "red")
 
 # Plot residuals
-ggplot(sim2, aes(x = x)) +
+ggplot(sim_2, aes(x = x)) +
   geom_point(aes(y = resid)) +
   geom_point(aes(y = loess_residuals), color = "red", size = 2)
 
@@ -297,7 +297,7 @@ ggplot(sim2, aes(x = x)) +
 
 # as we can see, using add_predictions to add predicts from two models involves:
 # DO NOT RUN
-sim3 <- sim1 %>%
+sim_3 <- sim1 %>%
   add_predictions(sim1_mod) %>%
   add_predictions(sim1_mod_loess, var = "loess_predictions") 
 # But if we use gather_predictions()
@@ -332,3 +332,212 @@ test %>%
 # Basically we want to check the residuals
 # The freq_ploy shows the absolute values of the residuals
 # However, simply using absolute values will miss information about the residuals such as the signs of the residuals
+
+
+# Formulas and Model Families ---------------------------------------------
+
+# If you want to see what R does in a formula, use model_matrix() function
+# For example
+df <- tribble(
+  ~y, ~x1, ~x2,
+  4, 2, 5,
+  5, 1, 6
+)
+model_matrix(df, y ~ x1)
+
+# R always add a column of intercept there
+# If you do not want intercept, type -1 to drop it:
+model_matrix(df, y ~ x1 - 1)
+
+# The model matrix grows in an unsurprising way when you add more variables
+model_matrix(df, y ~ x1 + x2)
+
+# Categorical Variables
+df <- tribble(
+  ~ sex, ~ response,
+  "male", 1,
+  "female", 0,
+  "male", 1
+)
+# R converts the sex variable where sex_male appears, and sex_male is 1 if sex is male
+# and 0 otherwise
+model_matrix(df, response ~ sex)
+
+# Visualize data
+ggplot(sim2) + 
+  geom_point(aes(x, y))
+  
+sim2
+
+# We can fit a model to it and generate predictions
+mod2 <- lm(y ~ x, data = sim2)
+grid <- sim2 %>%
+  data_grid(x) %>%
+  add_predictions(mod2)
+grid
+# We can visualize it
+ggplot(sim2, aes(x)) +
+  geom_point(aes(y = y)) +
+  geom_point(data = grid,
+             aes(y = pred),
+             color = "red",
+             size = 4)
+
+# Interactions (Continuous and Categorical)
+# What happens when you combine a continuous and a categorical variable?
+# We use sim3
+ggplot(sim3, aes(x1, y)) +
+  geom_point(aes(color = x2))
+sim3
+
+# There are two models:
+mod1 <- lm(y ~ x1 + x2, data = sim3)
+mod2 <- lm(y ~ x1 * x2, data = sim3)
+# Interactions of two variables is used *
+
+# To visualize, we need to give data_grid() both variables
+# To generate predictions from both models simultaneously, we can use
+# gather_predictions().
+grid <- sim3 %>%
+  data_grid(x1, x2) %>%
+  gather_predictions(mod1, mod2) 
+grid
+# Do not spread the gather_predictions because we need it to plot the graph
+
+# We can visualize results for both models on one plot using facet
+ggplot(sim3, aes(x1, y, color = x2)) +
+  geom_point() +
+  geom_line(data = grid, aes(y = pred)) +
+  facet_wrap(~ model)
+
+# Which model is better?
+# We can take a look at the residuals
+sim_3 <- sim3 %>%
+  gather_residuals(mod1, mod2)
+sim_3
+ggplot(sim_3, aes(x1, resid, color = x2)) +
+  geom_point() +
+  facet_grid(model ~ x2)
+
+# Interactions (Tow Continuous)
+# Use sim4
+sim4
+mod1 <- lm(y ~ x1 + x2, data = sim4)
+mod2 <- lm(y ~ x1 * x2, data = sim4)
+grid <- sim4 %>%
+  data_grid(
+    x1 = seq_range(x1, 5),
+    x2 = seq_range(x2, 5)
+  ) %>%
+  gather_predictions(mod1, mod2)
+grid
+
+# Note the use of seq_range() in data_grid()
+# Instead of using every unique value of x, the author was going to use
+# a regularly spaced grid of five values between minimum and maximum numbers
+# It's probably not super important here, but it's a useful technique in general
+# There are three other useful arguments to seq_range()
+?seq_range
+
+# --- pretty = TRUE
+# This will generate something that looks nice to human eye
+seq_range(c(0.0123, 0.923423), n = 5)
+seq_range(c(0.0123, 0.923423), n = 5, pretty = TRUE)
+
+# --- trim = 0.1
+# This will trim off 10% of the tail values. This is useful if the variable has 
+# long-tailed distribution and you want to focus on generating values near that center
+x1 <- rcauchy(100)
+seq_range(x1, n = 5)
+seq_range(x1, n = 5, trim = 0.1)
+seq_range(x1, n = 5, trim = 0.25)
+seq_range(x1, n = 5, trim = 0.5)
+# expand = 0.1 is the opposite of trim = 0.1
+seq_range(x1, n = 5, expand = 0.1)
+
+# Now let's try and visualize the model. We have two continuous predictors, so
+# you can imagine the model like a 3D surface. We could display that using geom_tile()
+ggplot(grid, aes(x1, x2)) +
+  geom_tile(aes(fill = pred)) +
+  facet_grid(~ model)
+# This graph doesn't show much difference between the two models
+
+ggplot(grid, aes(x1, pred, color = x2, group = x2)) +
+  geom_line() +
+  facet_wrap(~ model)
+
+ggplot(grid, aes(x2, pred, color = x1, group = x1)) +
+  geom_line() +
+  facet_wrap(~ model)
+
+# Transformations
+# If you have x, but not x^2, within the model, you can use I(x^2) to create one
+
+df <- tribble(
+  ~y, ~x,
+  1,  1,
+  2,  2, 
+  3,  3
+)
+model_matrix(df, y ~ x^2 + x)
+model_matrix(df, y ~ I(x^2) + x)
+model_matrix(df, y ~ poly(x, 2))
+
+# However there’s one major problem with using poly(): outside the range of the data, polynomials rapidly 
+# shoot off to positive or negative infinity. One safer alternative is to use the natural spline, splines::ns().
+library(splines)
+model_matrix(df, y ~ ns(x, 2))
+
+# Let’s see what that looks like when we try and approximate a non-linear function:
+sim5 <- tibble(
+  x = seq(0, 3.5 * pi, length = 50),
+  y = 4 * sin(x) + rnorm(length(x))
+)
+ggplot(sim5, aes(x, y)) +
+  geom_point()
+
+mod1 <- lm(y ~ ns(x, 1), data = sim5)
+mod2 <- lm(y ~ ns(x, 2), data = sim5)
+mod3 <- lm(y ~ ns(x, 3), data = sim5)
+mod4 <- lm(y ~ ns(x, 4), data = sim5)
+mod5 <- lm(y ~ ns(x, 5), data = sim5)
+
+grid <- sim5 %>% 
+  data_grid(x = seq_range(x, n = 50, expand = 0.1)) %>% 
+  gather_predictions(mod1, mod2, mod3, mod4, mod5)
+grid
+
+ggplot(sim5, aes(x, y)) + 
+  geom_point() +
+  geom_line(data = grid, aes(y = pred), colour = "red") +
+  facet_wrap(~ model)
+
+
+# Transformations Exercises -----------------------------------------------
+
+# 1. What happens if you repeat the analysis of sim2 using a model without an intercept. 
+# What happens to the model equation? What happens to the predictions?
+
+# Apply -1 in the model to drop the intercept
+sim2
+mod2_1 <- lm(y ~ x - 1, data = sim2)
+mod2_0 <- lm(y ~ x, data = sim2)
+
+grid <- sim2 %>%
+  data_grid(x) %>%
+  spread_predictions(mod2_1, mod2_0)
+grid
+
+# The result is the same
+
+# 2. Use model_matrix() to explore the equations generated for the models 
+# I fit to sim3 and sim4. Why is * a good shorthand for interaction?
+q2mod3 <- model_matrix(y ~ x1 * x2, data = sim3)
+q2mod3
+q2mod4 <- model_matrix(y ~ x1 * x2, data = sim4)
+q2mod4
+
+# 3. Don't know how to do
+
+# 4. For sim4, which of mod1 and mod2 is better? I think mod2 does a slightly better job at removing patterns,
+# but it’s pretty subtle. Can you come up with a plot to support my claim?
